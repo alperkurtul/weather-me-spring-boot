@@ -1,1 +1,1 @@
-# weather-me
+# weather-me-spring-boot
