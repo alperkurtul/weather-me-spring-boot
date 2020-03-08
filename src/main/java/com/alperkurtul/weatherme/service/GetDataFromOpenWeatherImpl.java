@@ -3,12 +3,14 @@ package com.alperkurtul.weatherme.service;
 import com.alperkurtul.weatherme.bean.WeatherDataBean;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.swing.text.html.parser.Parser;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Map;
 
 @Service
@@ -17,7 +19,7 @@ public class GetDataFromOpenWeatherImpl implements GetDataFromOpenWeather {
     @Override
     public WeatherDataBean getCurrentWeather() {
 
-        String url = "http://api.openweathermap.org/data/2.5/weather?q=Kadikoy&lang=tr&units=metric&APPID=bcd5cca022de3d1a38619a0f353c5c77";
+        String url = "http://api.openweathermap.org/data/2.5/weather?q=Istanbul&lang=tr&units=metric&APPID=bcd5cca022de3d1a38619a0f353c5c77";
         String response;
         RestTemplate restTemplate = new RestTemplate();
 
@@ -33,39 +35,88 @@ public class GetDataFromOpenWeatherImpl implements GetDataFromOpenWeather {
         JsonParser jsonParser = JsonParserFactory.getJsonParser();
         Map<String, Object> mapJson = jsonParser.parseMap(response);
 
+        System.out.println("response: " + response);
         String mapArray[] = new String[mapJson.size()];
         System.out.println("Items found: " + mapArray.length);
 
-
-        int startPoint;
-        int endPoint;
-        String toBeSearchedString;
-        int i = 0;
         for (Map.Entry<String, Object> entry : mapJson.entrySet()) {
 
-            startPoint = 0;
-            endPoint = 0;
-            toBeSearchedString = "description=";
+            System.out.println(entry.toString() + " ## " + entry.getKey() + " ## " + entry.getValue());
 
-            //weatherDataBean.setDescription( entry.toString().compareTo()  );
-            System.out.println(entry.toString());
+            if (entry.getKey().equals("id")) {
 
+                weatherDataBean.setLocationId(entry.getValue().toString());
 
-            startPoint = entry.toString().indexOf(toBeSearchedString);
-            if (startPoint != -1) {
-                endPoint = entry.toString().indexOf(",",startPoint);
-                if (endPoint == -1) {
-                    endPoint = entry.toString().indexOf("}",startPoint);
+            } else if (entry.getKey().equals("name")) {
+
+                weatherDataBean.setLocationName(entry.getValue().toString());
+
+            } else if (entry.getKey().equals("timezone")) {
+
+                weatherDataBean.setTimeZone(entry.getValue().toString());
+
+            } else if (entry.getKey().equals("weather")) {
+
+                Map<String,Object> mapJson2 = (Map<String, Object>) ((ArrayList)entry.getValue()).get(0);
+                for (Map.Entry<String, Object> entry2 : mapJson2.entrySet()) {
+                    if (entry2.getKey().equals("description")) {
+                        weatherDataBean.setDescription(entry2.getValue().toString());
+                    } else if (entry2.getKey().equals("icon")) {
+                        weatherDataBean.setDescriptionIcon("http://openweathermap.org/img/w/" + entry2.getValue().toString() + ".png");
+                    }
                 }
-                weatherDataBean.setDescription(entry.toString().substring(startPoint+toBeSearchedString.length(),endPoint));
-                System.out.println("weatherDataBean.setDescription(): " + weatherDataBean.getDescription());
+
+            } else if (entry.getKey().equals("main")) {
+
+                Map<String,Object> mapJson2 = (Map<String, Object>) entry.getValue();
+                for (Map.Entry<String, Object> entry2 : mapJson2.entrySet()) {
+                    if (entry2.getKey().equals("temp")) {
+                        weatherDataBean.setRealTemprature(entry2.getValue().toString());
+                    } else if (entry2.getKey().equals("feels_like")) {
+                        weatherDataBean.setFeelsTemprature(entry2.getValue().toString());
+                    } else if (entry2.getKey().equals("temp_min")) {
+                        weatherDataBean.setMinTemprature(entry2.getValue().toString());
+                    } else if (entry2.getKey().equals("temp_max")) {
+                        weatherDataBean.setMaxTemprature(entry2.getValue().toString());
+                    } else if (entry2.getKey().equals("pressure")) {
+                        weatherDataBean.setPressure(entry2.getValue().toString());
+                    } else if (entry2.getKey().equals("humidity")) {
+                        weatherDataBean.setHumidity(entry2.getValue().toString());
+                    }
+                }
+
+            } else if (entry.getKey().equals("sys")) {
+
+                Map<String,Object> mapJson2 = (Map<String, Object>) entry.getValue();
+                for (Map.Entry<String, Object> entry2 : mapJson2.entrySet()) {
+                    if (entry2.getKey().equals("country")) {
+                        weatherDataBean.setCountryCode(entry2.getValue().toString());
+                    } else if (entry2.getKey().equals("sunrise")) {
+                        weatherDataBean.setSunRise(entry2.getValue().toString());
+                    } else if (entry2.getKey().equals("sunset")) {
+                        weatherDataBean.setSunSet(entry2.getValue().toString());
+                    }
+                }
 
             }
 
-            //System.out.println(entry.getKey() + " = " + entry.getValue());
-            i++;
         }
 
+        final DateTimeFormatter formatter =  DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        long unixTime;
+        String formattedDtm;
+
+        unixTime = Long.valueOf(weatherDataBean.getSunRise()) + Long.valueOf(weatherDataBean.getTimeZone());
+        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+        weatherDataBean.setSunRise(formattedDtm);
+
+        unixTime = Long.valueOf(weatherDataBean.getSunSet()) + Long.valueOf(weatherDataBean.getTimeZone());
+        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+        weatherDataBean.setSunSet(formattedDtm);
+
+        unixTime = Long.valueOf(weatherDataBean.getTimeZone());
+        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+        weatherDataBean.setTimeZone(formattedDtm);
 
         return weatherDataBean;
     }

@@ -9,22 +9,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/wm")
-public class Hello {
+public class GetOpenWeatherData {
 
     @Autowired
     GetDataFromOpenWeather currentWeather;
 
-    @RequestMapping(value="/hello", method = RequestMethod.POST)
-    public String getHelloString() {
-        return "Hello !!!";
-    }
-
     @RequestMapping(value = "/curwet", method = RequestMethod.GET)
     public WeatherDataBean getCurrentWeather() {
 
-        WeatherDataBean a = currentWeather.getCurrentWeather();
+        WeatherDataBean weatherDataBean = currentWeather.getCurrentWeather();
 
-        return a;
+        return weatherDataBean;
     }
 
 }

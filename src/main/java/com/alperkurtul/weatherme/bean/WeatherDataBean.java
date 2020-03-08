@@ -10,6 +10,12 @@ public class WeatherDataBean {
     private String maxTemprature;
     private String pressure;
     private String humidity;
+    private String countryCode;
+    private String sunRise;
+    private String sunSet;
+    private String timeZone;
+    private String locationId;
+    private String locationName;
 
     public String getDescription() {
         return description;
@@ -73,5 +79,53 @@ public class WeatherDataBean {
 
     public void setHumidity(String humidity) {
         this.humidity = humidity;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    public String getSunRise() {
+        return sunRise;
+    }
+
+    public void setSunRise(String sunRise) {
+        this.sunRise = sunRise;
+    }
+
+    public String getSunSet() {
+        return sunSet;
+    }
+
+    public void setSunSet(String sunSet) {
+        this.sunSet = sunSet;
+    }
+
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    public String getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(String locationId) {
+        this.locationId = locationId;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }
