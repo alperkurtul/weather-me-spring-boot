@@ -1,6 +1,10 @@
 package com.alperkurtul.weatherme.service;
 
 import com.alperkurtul.weatherme.bean.WeatherDataBean;
+import com.alperkurtul.weatherme.model.Weather;
+import com.alperkurtul.weatherme.model.WeatherId;
+import com.alperkurtul.weatherme.repository.WeatherRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
@@ -15,6 +19,9 @@ import java.util.Map;
 
 @Service
 public class GetDataFromOpenWeatherImpl implements GetDataFromOpenWeather {
+
+    @Autowired
+    private WeatherRepository weatherRepository;
 
     @Override
     public WeatherDataBean getCurrentWeather() {
@@ -117,6 +124,11 @@ public class GetDataFromOpenWeatherImpl implements GetDataFromOpenWeather {
         unixTime = Long.valueOf(weatherDataBean.getTimeZone());
         formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
         weatherDataBean.setTimeZone(formattedDtm);
+
+        /*Weather weather = new Weather();
+        WeatherId weatherId = new WeatherId("111","aaa","bbb");
+        weather.setWeatherJson(response);
+        weatherRepository.save(weather);*/
 
         return weatherDataBean;
     }
