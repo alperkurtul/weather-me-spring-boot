@@ -9,9 +9,8 @@ import java.sql.Timestamp;
 public class Weather {
 
     @EmbeddedId
-    //@Column(name="WeatherId")
     private WeatherId weatherId;
-    //@Column(name="WeatherJson")
+    @Column(name="WeatherJson")
     private String weatherJson;
     //@Column(name="CreateTime")
     //private Timestamp createTime;

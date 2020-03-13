@@ -1,13 +1,17 @@
 package com.alperkurtul.weatherme.model;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
 public class WeatherId implements Serializable {
+    @Column(name="LocationId")
     private String locationId;
+    @Column(name="Language")
     private String language;
+    @Column(name="Units")
     private String units;
 
     public WeatherId() {
