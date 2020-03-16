@@ -1,6 +1,6 @@
 package com.alperkurtul.weatherme.bean;
 
-public class WeatherDataBean {
+public class CurrentWeatherDataBean {
 
     private String description;
     private String descriptionIcon;
