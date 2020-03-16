@@ -1,12 +1,10 @@
 package com.alperkurtul.weatherme.service;
 
-import com.alperkurtul.weatherme.bean.CurrentWeatherDataBean;
-import com.alperkurtul.weatherme.bean.WeatherRequestParametersBean;
 import org.springframework.context.annotation.Bean;
 
-public interface GetDataFromOpenWeather {
+public interface GetDataFromOpenWeather<REQ, RES> {
 
     @Bean
-    public CurrentWeatherDataBean getCurrentWeather(WeatherRequestParametersBean weatherRequestParametersBean);
+    public RES getCurrentWeather(REQ var1);
 
 }

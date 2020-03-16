@@ -3,7 +3,6 @@ package com.alperkurtul.weatherme.model;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import java.sql.Timestamp;
 
 @Entity
 public class Weather {
@@ -12,6 +11,8 @@ public class Weather {
     private WeatherId weatherId;
     @Column(name="WeatherJson")
     private String weatherJson;
+    @Column(name="RequestUrl")
+    private String requestUrl;
     //@Column(name="CreateTime")
     //private Timestamp createTime;
 
@@ -31,7 +32,15 @@ public class Weather {
         this.weatherJson = weatherJson;
     }
 
-/*    public Timestamp getCreateTime() {
+    public String getRequestUrl() {
+        return requestUrl;
+    }
+
+    public void setRequestUrl(String requestUrl) {
+        this.requestUrl = requestUrl;
+    }
+
+    /*    public Timestamp getCreateTime() {
         return createTime;
     }
 

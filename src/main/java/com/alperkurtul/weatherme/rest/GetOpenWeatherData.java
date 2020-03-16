@@ -1,4 +1,4 @@
-package com.alperkurtul.weatherme.controller;
+package com.alperkurtul.weatherme.rest;
 
 import com.alperkurtul.weatherme.bean.CurrentWeatherDataBean;
 import com.alperkurtul.weatherme.bean.WeatherRequestParametersBean;
@@ -20,7 +20,7 @@ public class GetOpenWeatherData {
     @RequestMapping(value = "/curwet", method = RequestMethod.GET)
     public CurrentWeatherDataBean getCurrentWeather() {
 
-        CurrentWeatherDataBean currentWeatherDataBean = currentWeather.getCurrentWeather(new WeatherRequestParametersBean("Istanbul","tr","metric"));
+        CurrentWeatherDataBean currentWeatherDataBean = (CurrentWeatherDataBean) currentWeather.getCurrentWeather(new WeatherRequestParametersBean("Istanbul","tr","metric"));
 
         return currentWeatherDataBean;
     }

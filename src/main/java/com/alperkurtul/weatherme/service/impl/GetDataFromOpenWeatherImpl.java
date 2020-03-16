@@ -3,9 +3,9 @@ package com.alperkurtul.weatherme.service.impl;
 import com.alperkurtul.weatherme.configuration.WeatherMeConfigurationProperties;
 import com.alperkurtul.weatherme.bean.CurrentWeatherDataBean;
 import com.alperkurtul.weatherme.bean.WeatherRequestParametersBean;
+import com.alperkurtul.weatherme.data.WeatherData;
 import com.alperkurtul.weatherme.model.Weather;
 import com.alperkurtul.weatherme.model.WeatherId;
-import com.alperkurtul.weatherme.repository.WeatherRepository;
 import com.alperkurtul.weatherme.service.GetDataFromOpenWeather;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
@@ -21,61 +21,72 @@ import java.util.ArrayList;
 import java.util.Map;
 
 @Service
-public class GetDataFromOpenWeatherImpl implements GetDataFromOpenWeather {
-
-    @Autowired
-    private WeatherRepository weatherRepository;
+public class GetDataFromOpenWeatherImpl<REQ, RES> implements GetDataFromOpenWeather<REQ, RES> {
 
     @Autowired
     private WeatherMeConfigurationProperties weatherMeConfigurationProperties;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private WeatherData weatherData;
+
     @Override
-    public CurrentWeatherDataBean getCurrentWeather(WeatherRequestParametersBean weatherRequestParametersBean) {
+    public RES getCurrentWeather(REQ var1) {
 
         String response = "";
-        CurrentWeatherDataBean currentWeatherDataBean;
 
-        //String url = "http://api.openweathermap.org/data/2.5/weather?q=Istanbul&lang=tr&units=metric&APPID=bcd5cca022de3d1a38619a0f353c5c77";
-        String url = weatherMeConfigurationProperties.getOpenweathermapsiteApiUrl();
+        WeatherRequestParametersBean weatherRequestParametersBean = (WeatherRequestParametersBean) var1;
+
+        //String requestUrl = "http://api.openweathermap.org/data/2.5/weather?q=Istanbul&lang=tr&units=metric&APPID=bcd5cca022de3d1a38619a0f353c5c77";
+        String apiUrl = weatherMeConfigurationProperties.getOpenweathermapsiteApiUrl();
         String appId = weatherMeConfigurationProperties.getOpenweathermapsiteApiAppid();
         String currentweatherSuffix = weatherMeConfigurationProperties.getOpenweathermapsiteApiCurrentweatherSuffix();
-        url = url + currentweatherSuffix + "q=" + weatherRequestParametersBean.getLocationName() + "&lang=" + weatherRequestParametersBean.getLanguage() + "&units=" + weatherRequestParametersBean.getUnits() + "&APPID=" + appId;
 
+        String requestUrl = apiUrl + currentweatherSuffix +
+                "q=" + weatherRequestParametersBean.getLocationName() +
+                "&lang=" + weatherRequestParametersBean.getLanguage() +
+                "&units=" + weatherRequestParametersBean.getUnits() +
+                "&appid=" + appId;
 
-        if (!weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
-
-            currentWeatherDataBean = new CurrentWeatherDataBean();
-            currentWeatherDataBean.setDescription("parçalı az bulutlu");
-            currentWeatherDataBean.setDescriptionIcon("http://openweathermap.org/img/w/03d.png");
-            currentWeatherDataBean.setRealTemprature("12.93");
-            currentWeatherDataBean.setFeelsTemprature("11.87");
-            currentWeatherDataBean.setMinTemprature("11.11");
-            currentWeatherDataBean.setMaxTemprature("15");
-            currentWeatherDataBean.setPressure("1012");
-            currentWeatherDataBean.setHumidity("67");
-            currentWeatherDataBean.setCountryCode("TR");
-            currentWeatherDataBean.setSunRise("09-03-2020 07:25:25");
-            currentWeatherDataBean.setSunSet("09-03-2020 19:03:55");
-            currentWeatherDataBean.setTimeZone("01-01-1970 03:00:00");
-            currentWeatherDataBean.setLocationId("745042");
-            currentWeatherDataBean.setLocationName("İstanbul");
-
-        } else {
-
-            RestTemplate restTemplate = new RestTemplate();
-
+        if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
             try {
-                response = restTemplate.getForObject(url, String.class);
+                response = restTemplate.getForObject(requestUrl, String.class);
             } catch (HttpStatusCodeException e) {
                 throw new RuntimeException();
             }
+        } else {
+            response = "DUMMY";
+        }
+
+        CurrentWeatherDataBean currentWeatherDataBean = parseCurrentWeatherJson(response);
+
+        Weather weather = new Weather();
+        WeatherId weatherId = new WeatherId(currentWeatherDataBean.getLocationId(),
+                weatherRequestParametersBean.getLanguage() ,
+                weatherRequestParametersBean.getUnits());
+        weather.setWeatherId(weatherId);
+        weather.setWeatherJson(response);
+        weather.setRequestUrl(requestUrl);
+
+        weatherData.saveWeather(weather);
+
+        return (RES) currentWeatherDataBean;
+    }
+
+    private CurrentWeatherDataBean parseCurrentWeatherJson(String currentWeatherJson) {
+
+        CurrentWeatherDataBean currentWeatherDataBean = new CurrentWeatherDataBean();
+
+        if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
 
             currentWeatherDataBean = new CurrentWeatherDataBean();
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
-            Map<String, Object> mapJson = jsonParser.parseMap(response);
+            Map<String, Object> mapJson = jsonParser.parseMap(currentWeatherJson);
 
-            System.out.println("response: " + response);
+            System.out.println("response: " + currentWeatherJson);
             String mapArray[] = new String[mapJson.size()];
             System.out.println("Items found: " + mapArray.length);
 
@@ -158,13 +169,22 @@ public class GetDataFromOpenWeatherImpl implements GetDataFromOpenWeather {
             formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
             currentWeatherDataBean.setTimeZone(formattedDtm);
 
+        } else {
+            currentWeatherDataBean.setDescription("parçalı az bulutlu");
+            currentWeatherDataBean.setDescriptionIcon("http://openweathermap.org/img/w/03d.png");
+            currentWeatherDataBean.setRealTemprature("12.93");
+            currentWeatherDataBean.setFeelsTemprature("11.87");
+            currentWeatherDataBean.setMinTemprature("11.11");
+            currentWeatherDataBean.setMaxTemprature("15");
+            currentWeatherDataBean.setPressure("1012");
+            currentWeatherDataBean.setHumidity("67");
+            currentWeatherDataBean.setCountryCode("TR");
+            currentWeatherDataBean.setSunRise("09-03-2020 07:25:25");
+            currentWeatherDataBean.setSunSet("09-03-2020 19:03:55");
+            currentWeatherDataBean.setTimeZone("01-01-1970 03:00:00");
+            currentWeatherDataBean.setLocationId("745042");
+            currentWeatherDataBean.setLocationName("İstanbul");
         }
-
-        Weather weather = new Weather();
-        WeatherId weatherId = new WeatherId("111","aaa","bbb");
-        weather.setWeatherId(weatherId);
-        weather.setWeatherJson(response);
-        weatherRepository.save(weather);
 
         return currentWeatherDataBean;
     }
