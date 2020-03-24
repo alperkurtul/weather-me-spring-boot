@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = "weather.me")
-public class TemplateConfigurationProperties {
+public class WeatherMeConfigurationProperties {
 
     private String connectToRealApi;
     private String openweathermapsiteApiAppid;

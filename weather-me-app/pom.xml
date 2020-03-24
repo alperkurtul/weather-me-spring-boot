@@ -4,15 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.alperkurtul</groupId>
-        <artifactId>template-parent</artifactId>
+        <artifactId>weather-me-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../template-parent</relativePath>
+        <relativePath>../weather-me-parent</relativePath>
     </parent>
     <groupId>com.alperkurtul</groupId>
-    <artifactId>template-app</artifactId>
+    <artifactId>weather-me-app</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>template-app</name>
-    <description>App Layer of Spring Boot Template project</description>
+    <name>weather-me-app</name>
+    <description>App Layer of Spring Boot Weather Me project</description>
     <packaging>jar</packaging>
 
     <properties>
@@ -22,7 +22,7 @@
     <dependencies>
         <dependency>
             <groupId>com.alperkurtul</groupId>
-            <artifactId>template-rest</artifactId>
+            <artifactId>weather-me-rest</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>

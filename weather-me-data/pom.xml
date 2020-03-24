@@ -4,15 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.alperkurtul</groupId>
-        <artifactId>template-parent</artifactId>
+        <artifactId>weather-me-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../template-parent</relativePath>
+        <relativePath>../weather-me-parent</relativePath>
     </parent>
     <groupId>com.alperkurtul</groupId>
-    <artifactId>template-data</artifactId>
+    <artifactId>weather-me-data</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>template-data</name>
-    <description>Data Layer of Spring Boot Template project</description>
+    <name>weather-me-data</name>
+    <description>Data Layer of Spring Boot Weather Me project</description>
     <packaging>jar</packaging>
 
     <properties>

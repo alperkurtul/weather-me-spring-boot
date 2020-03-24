@@ -9,10 +9,10 @@
         <relativePath/>
     </parent>
     <groupId>com.alperkurtul</groupId>
-    <artifactId>template</artifactId>
+    <artifactId>weather-me</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>template</name>
-    <description>Root Layer of Spring Boot Template project</description>
+    <name>weather-me</name>
+    <description>Root Layer of Spring Boot Weather Me project</description>
     <packaging>pom</packaging>
 
     <properties>

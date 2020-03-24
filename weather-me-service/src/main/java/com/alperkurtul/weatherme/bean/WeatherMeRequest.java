@@ -1,12 +1,12 @@
 package com.alperkurtul.weatherme.bean;
 
-public class TemplateRequest {
+public class WeatherMeRequest {
 
     private String locationName;
     private String language;
     private String units;
 
-    public TemplateRequest(String locationName, String language, String units) {
+    public WeatherMeRequest(String locationName, String language, String units) {
         this.locationName = locationName;
         this.language = language;
         this.units = units;

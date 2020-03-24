@@ -4,14 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.alperkurtul</groupId>
-        <artifactId>template</artifactId>
+        <artifactId>weather-me</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <groupId>com.alperkurtul</groupId>
-    <artifactId>template-parent</artifactId>
+    <artifactId>weather-me-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>template-parent</name>
-    <description>Parent Layer of Spring Boot Template project</description>
+    <name>weather-me-parent</name>
+    <description>Parent Layer of Spring Boot Weather Me project</description>
     <packaging>pom</packaging>
 
     <properties>

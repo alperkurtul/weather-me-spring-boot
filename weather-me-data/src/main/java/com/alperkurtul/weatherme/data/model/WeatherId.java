@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class TemplateId implements Serializable {
+public class WeatherId implements Serializable {
     @Column(name = "LocationId")
     private String locationId;
     @Column(name = "Language")
@@ -14,10 +14,10 @@ public class TemplateId implements Serializable {
     @Column(name = "Units")
     private String units;
 
-    public TemplateId() {
+    public WeatherId() {
     }
 
-    public TemplateId(String locationId, String language, String units) {
+    public WeatherId(String locationId, String language, String units) {
         this.locationId = locationId;
         this.language = language;
         this.units = units;
@@ -39,10 +39,10 @@ public class TemplateId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TemplateId templateId = (TemplateId) o;
-        return Objects.equals(locationId, templateId.locationId) &&
-                Objects.equals(language, templateId.language) &&
-                Objects.equals(units, templateId.units);
+        WeatherId weatherId = (WeatherId) o;
+        return Objects.equals(locationId, weatherId.locationId) &&
+                Objects.equals(language, weatherId.language) &&
+                Objects.equals(units, weatherId.units);
     }
 
     @Override

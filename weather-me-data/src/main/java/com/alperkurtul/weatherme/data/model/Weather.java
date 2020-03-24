@@ -5,10 +5,10 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
 @Entity
-public class Template {
+public class Weather {
 
     @EmbeddedId
-    private TemplateId templateId;
+    private WeatherId weatherId;
     @Column(name = "WeatherJson", length = 4096)
     private String weatherJson;
     @Column(name = "RequestUrl")
@@ -16,12 +16,12 @@ public class Template {
     //@Column(name="CreateTime")
     //private Timestamp createTime;
 
-    public TemplateId getTemplateId() {
-        return templateId;
+    public WeatherId getWeatherId() {
+        return weatherId;
     }
 
-    public void setTemplateId(TemplateId templateId) {
-        this.templateId = templateId;
+    public void setWeatherId(WeatherId weatherId) {
+        this.weatherId = weatherId;
     }
 
     public String getWeatherJson() {

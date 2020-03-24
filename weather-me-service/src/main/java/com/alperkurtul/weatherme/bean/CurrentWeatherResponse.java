@@ -1,6 +1,6 @@
 package com.alperkurtul.weatherme.bean;
 
-public class TemplateResponse {
+public class CurrentWeatherResponse {
 
     private String description;
     private String descriptionIcon;
