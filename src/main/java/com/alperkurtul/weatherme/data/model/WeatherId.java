@@ -1,4 +1,4 @@
-package com.alperkurtul.weatherme.model;
+package com.alperkurtul.weatherme.data.model;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

@@ -1,4 +1,4 @@
-package com.alperkurtul.weatherme.model;
+package com.alperkurtul.weatherme.data.model;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -9,7 +9,7 @@ public class Weather {
 
     @EmbeddedId
     private WeatherId weatherId;
-    @Column(name="WeatherJson")
+    @Column(name="WeatherJson", length = 4096)
     private String weatherJson;
     @Column(name="RequestUrl")
     private String requestUrl;
