@@ -5,7 +5,7 @@ import com.alperkurtul.weatherme.bean.WeatherMeRequest;
 import org.springframework.web.bind.annotation.*;
 
 //@Validated
-@RequestMapping(value = "/sample/v1")
+@RequestMapping(value = "/template/v1")
 @CrossOrigin("*")
 public interface WeatherMeController {
 

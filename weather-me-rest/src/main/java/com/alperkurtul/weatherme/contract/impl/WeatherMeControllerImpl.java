@@ -14,7 +14,7 @@ public class WeatherMeControllerImpl implements WeatherMeController {
     private WeatherMeService weatherMeService;
 
     @Override
-    public CurrentWeatherResponse getTemplate(String key) throws Exception{
+    public CurrentWeatherResponse getTemplate(String key) throws Exception {
 
         CurrentWeatherResponse currentWeatherResponse = (CurrentWeatherResponse) weatherMeService.getCurrentWeather(new WeatherMeRequest("Istanbul", "tr", "metric"));
 
