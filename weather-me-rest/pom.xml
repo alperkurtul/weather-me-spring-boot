@@ -13,6 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>weather-me-rest</name>
     <description>Rest Layer of Spring Boot Weather Me project</description>
+    <packaging>jar</packaging>
 
     <properties>
         <java.version>1.8</java.version>
