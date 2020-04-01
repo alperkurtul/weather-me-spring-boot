@@ -5,13 +5,14 @@ import com.alperkurtul.weatherme.bean.CurrentWeatherResponse;
 import com.alperkurtul.weatherme.bean.WeatherMeRequest;
 import com.alperkurtul.weatherme.contract.WeatherMeService;
 import com.alperkurtul.weatherme.data.WeatherMeData;
+import com.alperkurtul.weatherme.data.error.handling.HttpExceptionDispatcher;
 import com.alperkurtul.weatherme.data.model.Weather;
 import com.alperkurtul.weatherme.data.model.WeatherId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
@@ -53,8 +54,8 @@ public class WeatherMeServiceImpl<REQ, RES> implements WeatherMeService<REQ, RES
         if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
             try {
                 response = restTemplate.getForObject(requestUrl, String.class);
-            } catch (HttpStatusCodeException e) {
-                throw new RuntimeException();
+            } catch (HttpClientErrorException e) {
+                new HttpExceptionDispatcher().dispatchToException(e);
             }
         } else {
             response = "DUMMY";
