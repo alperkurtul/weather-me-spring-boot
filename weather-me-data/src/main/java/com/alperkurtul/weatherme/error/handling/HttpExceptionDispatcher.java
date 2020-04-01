@@ -1,6 +1,5 @@
 package com.alperkurtul.weatherme.error.handling;
 
-import com.alperkurtul.weatherme.data.error.exception.*;
 import com.alperkurtul.weatherme.error.exception.*;
 import com.sun.istack.NotNull;
 import org.springframework.http.HttpStatus;

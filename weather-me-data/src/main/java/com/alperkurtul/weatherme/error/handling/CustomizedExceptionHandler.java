@@ -1,7 +1,6 @@
 package com.alperkurtul.weatherme.error.handling;
 
 import com.alperkurtul.weatherme.error.ErrorContants;
-import com.alperkurtul.weatherme.data.error.exception.*;
 import com.alperkurtul.weatherme.error.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
