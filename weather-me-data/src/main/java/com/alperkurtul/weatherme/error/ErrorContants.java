@@ -1,4 +1,4 @@
-package com.alperkurtul.weatherme.data.error;
+package com.alperkurtul.weatherme.error;
 
 public final class ErrorContants {
 

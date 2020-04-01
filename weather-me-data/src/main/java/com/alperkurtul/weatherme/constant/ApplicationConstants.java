@@ -1,4 +1,4 @@
-package com.alperkurtul.weatherme.data.constant;
+package com.alperkurtul.weatherme.constant;
 
 import org.springframework.beans.factory.annotation.Value;
 

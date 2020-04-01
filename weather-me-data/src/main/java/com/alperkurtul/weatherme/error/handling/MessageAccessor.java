@@ -1,6 +1,6 @@
-package com.alperkurtul.weatherme.data.error.handling;
+package com.alperkurtul.weatherme.error.handling;
 
-import com.alperkurtul.weatherme.data.constant.ApplicationConstants;
+import com.alperkurtul.weatherme.constant.ApplicationConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package com.alperkurtul.weatherme.configuration;
 
-import com.alperkurtul.weatherme.data.constant.ApplicationConstants;
+import com.alperkurtul.weatherme.constant.ApplicationConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;

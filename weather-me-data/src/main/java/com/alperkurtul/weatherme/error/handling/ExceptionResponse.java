@@ -1,4 +1,4 @@
-package com.alperkurtul.weatherme.data.error.handling;
+package com.alperkurtul.weatherme.error.handling;
 
 import java.util.Date;
 

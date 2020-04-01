@@ -1,7 +1,7 @@
-package com.alperkurtul.weatherme.data;
+package com.alperkurtul.weatherme;
 
-import com.alperkurtul.weatherme.data.model.Weather;
-import com.alperkurtul.weatherme.data.repository.WeatherRepository;
+import com.alperkurtul.weatherme.model.Weather;
+import com.alperkurtul.weatherme.repository.WeatherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
