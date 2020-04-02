@@ -1,13 +1,15 @@
 package com.alperkurtul.weatherme.contract.impl;
 
 import com.alperkurtul.weatherme.configuration.WeatherMeConfigurationProperties;
-import com.alperkurtul.weatherme.bean.CurrentWeatherResponse;
-import com.alperkurtul.weatherme.bean.WeatherMeRequest;
 import com.alperkurtul.weatherme.contract.WeatherMeService;
-import com.alperkurtul.weatherme.WeatherMeData;
+import com.alperkurtul.weatherme.contract.WeatherMeData;
+import com.alperkurtul.weatherme.error.ErrorContants;
+import com.alperkurtul.weatherme.error.exception.EntityNotFoundException;
 import com.alperkurtul.weatherme.error.handling.HttpExceptionDispatcher;
+import com.alperkurtul.weatherme.mapper.ServiceMapper;
 import com.alperkurtul.weatherme.model.Weather;
 import com.alperkurtul.weatherme.model.WeatherId;
+import com.alperkurtul.weatherme.model.WeatherMeDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
@@ -20,9 +22,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
-public class WeatherMeServiceImpl<REQ, RES> implements WeatherMeService<REQ, RES> {
+public class WeatherMeServiceImpl implements WeatherMeService {
 
     @Autowired
     private WeatherMeConfigurationProperties weatherMeConfigurationProperties;
@@ -33,12 +36,12 @@ public class WeatherMeServiceImpl<REQ, RES> implements WeatherMeService<REQ, RES
     @Autowired
     private WeatherMeData weatherMeData;
 
+    private ServiceMapper serviceMapper = ServiceMapper.INSTANCE;
+
     @Override
-    public RES getCurrentWeather(REQ var1) {
+    public WeatherMeDto getCurrentWeather(WeatherMeDto var1) {
 
         String response = "";
-
-        WeatherMeRequest weatherMeRequest = (WeatherMeRequest) var1;
 
         //String requestUrl = "http://api.openweathermap.org/data/2.5/weather?q=Istanbul&lang=tr&units=metric&APPID=bcd5cca022de3d1a38619a0f353c5c77";
         String apiUrl = weatherMeConfigurationProperties.getOpenweathermapsiteApiUrl();
@@ -46,9 +49,9 @@ public class WeatherMeServiceImpl<REQ, RES> implements WeatherMeService<REQ, RES
         String currentweatherSuffix = weatherMeConfigurationProperties.getOpenweathermapsiteApiCurrentweatherSuffix();
 
         String requestUrl = apiUrl + currentweatherSuffix +
-                "q=" + weatherMeRequest.getLocationName() +
-                "&lang=" + weatherMeRequest.getLanguage() +
-                "&units=" + weatherMeRequest.getUnits() +
+                "q=" + var1.getLocationName() +
+                "&lang=" + var1.getLanguage() +
+                "&units=" + var1.getUnits() +
                 "&appid=" + appId;
 
         if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
@@ -61,28 +64,44 @@ public class WeatherMeServiceImpl<REQ, RES> implements WeatherMeService<REQ, RES
             response = "DUMMY";
         }
 
-        CurrentWeatherResponse currentWeatherResponse = parseCurrentWeatherJson(response);
+        WeatherMeDto weatherMeDto = parseCurrentWeatherJson(response);
 
         Weather weather = new Weather();
-        WeatherId weatherId = new WeatherId(currentWeatherResponse.getLocationId(),
-                weatherMeRequest.getLanguage(),
-                weatherMeRequest.getUnits());
+        WeatherId weatherId = new WeatherId(weatherMeDto.getLocationId(),
+                var1.getLanguage(),
+                var1.getUnits());
         weather.setWeatherId(weatherId);
         weather.setWeatherJson(response);
         weather.setRequestUrl(requestUrl);
 
         weatherMeData.saveTemplate(weather);
 
-        return (RES) currentWeatherResponse;
+        return weatherMeDto;
     }
 
-    private CurrentWeatherResponse parseCurrentWeatherJson(String currentWeatherJson) {
+    @Override
+    public WeatherMeDto findByIdTemplate(WeatherMeDto var1) {
 
-        CurrentWeatherResponse currentWeatherResponse;
+        WeatherId templateId = serviceMapper.toWeatherId(var1);
+
+        Optional<Weather> optionalTemplate = weatherMeData.findByIdTemplate(templateId);
+
+        if (!optionalTemplate.isPresent()) {
+            throw new EntityNotFoundException(null, ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
+        }
+
+        WeatherMeDto weatherMeDto = serviceMapper.toTemplateDto(optionalTemplate.get(), optionalTemplate.get().getWeatherId());
+
+        return weatherMeDto;
+    }
+
+    private WeatherMeDto parseCurrentWeatherJson(String currentWeatherJson) {
+
+        WeatherMeDto weatherMeDto;
 
         if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
 
-            currentWeatherResponse = new CurrentWeatherResponse();
+            weatherMeDto = new WeatherMeDto();
 
             JsonParser jsonParser = JsonParserFactory.getJsonParser();
             Map<String, Object> mapJson = jsonParser.parseMap(currentWeatherJson);
@@ -97,24 +116,24 @@ public class WeatherMeServiceImpl<REQ, RES> implements WeatherMeService<REQ, RES
 
                 if (entry.getKey().equals("id")) {
 
-                    currentWeatherResponse.setLocationId(entry.getValue().toString());
+                    weatherMeDto.setLocationId(entry.getValue().toString());
 
                 } else if (entry.getKey().equals("name")) {
 
-                    currentWeatherResponse.setLocationName(entry.getValue().toString());
+                    weatherMeDto.setLocationName(entry.getValue().toString());
 
                 } else if (entry.getKey().equals("timezone")) {
 
-                    currentWeatherResponse.setTimeZone(entry.getValue().toString());
+                    weatherMeDto.setTimeZone(entry.getValue().toString());
 
                 } else if (entry.getKey().equals("weather")) {
 
                     Map<String, Object> mapJson2 = (Map<String, Object>) ((ArrayList) entry.getValue()).get(0);
                     for (Map.Entry<String, Object> entry2 : mapJson2.entrySet()) {
                         if (entry2.getKey().equals("description")) {
-                            currentWeatherResponse.setDescription(entry2.getValue().toString());
+                            weatherMeDto.setDescription(entry2.getValue().toString());
                         } else if (entry2.getKey().equals("icon")) {
-                            currentWeatherResponse.setDescriptionIcon("http://openweathermap.org/img/w/" + entry2.getValue().toString() + ".png");
+                            weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/" + entry2.getValue().toString() + ".png");
                         }
                     }
 
@@ -123,17 +142,17 @@ public class WeatherMeServiceImpl<REQ, RES> implements WeatherMeService<REQ, RES
                     Map<String, Object> mapJson2 = (Map<String, Object>) entry.getValue();
                     for (Map.Entry<String, Object> entry2 : mapJson2.entrySet()) {
                         if (entry2.getKey().equals("temp")) {
-                            currentWeatherResponse.setRealTemprature(entry2.getValue().toString());
+                            weatherMeDto.setRealTemprature(entry2.getValue().toString());
                         } else if (entry2.getKey().equals("feels_like")) {
-                            currentWeatherResponse.setFeelsTemprature(entry2.getValue().toString());
+                            weatherMeDto.setFeelsTemprature(entry2.getValue().toString());
                         } else if (entry2.getKey().equals("temp_min")) {
-                            currentWeatherResponse.setMinTemprature(entry2.getValue().toString());
+                            weatherMeDto.setMinTemprature(entry2.getValue().toString());
                         } else if (entry2.getKey().equals("temp_max")) {
-                            currentWeatherResponse.setMaxTemprature(entry2.getValue().toString());
+                            weatherMeDto.setMaxTemprature(entry2.getValue().toString());
                         } else if (entry2.getKey().equals("pressure")) {
-                            currentWeatherResponse.setPressure(entry2.getValue().toString());
+                            weatherMeDto.setPressure(entry2.getValue().toString());
                         } else if (entry2.getKey().equals("humidity")) {
-                            currentWeatherResponse.setHumidity(entry2.getValue().toString());
+                            weatherMeDto.setHumidity(entry2.getValue().toString());
                         }
                     }
 
@@ -142,11 +161,11 @@ public class WeatherMeServiceImpl<REQ, RES> implements WeatherMeService<REQ, RES
                     Map<String, Object> mapJson2 = (Map<String, Object>) entry.getValue();
                     for (Map.Entry<String, Object> entry2 : mapJson2.entrySet()) {
                         if (entry2.getKey().equals("country")) {
-                            currentWeatherResponse.setCountryCode(entry2.getValue().toString());
+                            weatherMeDto.setCountryCode(entry2.getValue().toString());
                         } else if (entry2.getKey().equals("sunrise")) {
-                            currentWeatherResponse.setSunRise(entry2.getValue().toString());
+                            weatherMeDto.setSunRise(entry2.getValue().toString());
                         } else if (entry2.getKey().equals("sunset")) {
-                            currentWeatherResponse.setSunSet(entry2.getValue().toString());
+                            weatherMeDto.setSunSet(entry2.getValue().toString());
                         }
                     }
 
@@ -158,37 +177,37 @@ public class WeatherMeServiceImpl<REQ, RES> implements WeatherMeService<REQ, RES
             long unixTime;
             String formattedDtm;
 
-            unixTime = Long.valueOf(currentWeatherResponse.getSunRise()) + Long.valueOf(currentWeatherResponse.getTimeZone());
+            unixTime = Long.valueOf(weatherMeDto.getSunRise()) + Long.valueOf(weatherMeDto.getTimeZone());
             formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-            currentWeatherResponse.setSunRise(formattedDtm);
+            weatherMeDto.setSunRise(formattedDtm);
 
-            unixTime = Long.valueOf(currentWeatherResponse.getSunSet()) + Long.valueOf(currentWeatherResponse.getTimeZone());
+            unixTime = Long.valueOf(weatherMeDto.getSunSet()) + Long.valueOf(weatherMeDto.getTimeZone());
             formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-            currentWeatherResponse.setSunSet(formattedDtm);
+            weatherMeDto.setSunSet(formattedDtm);
 
-            unixTime = Long.valueOf(currentWeatherResponse.getTimeZone());
+            unixTime = Long.valueOf(weatherMeDto.getTimeZone());
             formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-            currentWeatherResponse.setTimeZone(formattedDtm);
+            weatherMeDto.setTimeZone(formattedDtm);
 
         } else {
-            currentWeatherResponse = new CurrentWeatherResponse();
-            currentWeatherResponse.setDescription("parçalı az bulutlu");
-            currentWeatherResponse.setDescriptionIcon("http://openweathermap.org/img/w/03d.png");
-            currentWeatherResponse.setRealTemprature("12.93");
-            currentWeatherResponse.setFeelsTemprature("11.87");
-            currentWeatherResponse.setMinTemprature("11.11");
-            currentWeatherResponse.setMaxTemprature("15");
-            currentWeatherResponse.setPressure("1012");
-            currentWeatherResponse.setHumidity("67");
-            currentWeatherResponse.setCountryCode("TR");
-            currentWeatherResponse.setSunRise("09-03-2020 07:25:25");
-            currentWeatherResponse.setSunSet("09-03-2020 19:03:55");
-            currentWeatherResponse.setTimeZone("01-01-1970 03:00:00");
-            currentWeatherResponse.setLocationId("745042");
-            currentWeatherResponse.setLocationName("İstanbul");
+            weatherMeDto = new WeatherMeDto();
+            weatherMeDto.setDescription("parçalı az bulutlu");
+            weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/03d.png");
+            weatherMeDto.setRealTemprature("12.93");
+            weatherMeDto.setFeelsTemprature("11.87");
+            weatherMeDto.setMinTemprature("11.11");
+            weatherMeDto.setMaxTemprature("15");
+            weatherMeDto.setPressure("1012");
+            weatherMeDto.setHumidity("67");
+            weatherMeDto.setCountryCode("TR");
+            weatherMeDto.setSunRise("09-03-2020 07:25:25");
+            weatherMeDto.setSunSet("09-03-2020 19:03:55");
+            weatherMeDto.setTimeZone("01-01-1970 03:00:00");
+            weatherMeDto.setLocationId("745042");
+            weatherMeDto.setLocationName("İstanbul");
         }
 
-        return currentWeatherResponse;
+        return weatherMeDto;
     }
 
 }

@@ -1,8 +1,11 @@
 package com.alperkurtul.weatherme.contract;
 
-public interface WeatherMeService<REQ, RES> {
+import com.alperkurtul.weatherme.model.WeatherMeDto;
 
-    //@Bean
-    public RES getCurrentWeather(REQ var1);
+public interface WeatherMeService {
+
+    WeatherMeDto getCurrentWeather(WeatherMeDto var1);
+
+    WeatherMeDto findByIdTemplate(WeatherMeDto var1);
 
 }
