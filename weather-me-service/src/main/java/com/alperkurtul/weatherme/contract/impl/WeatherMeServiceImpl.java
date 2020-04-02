@@ -39,7 +39,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
     private ServiceMapper serviceMapper = ServiceMapper.INSTANCE;
 
     @Override
-    public WeatherMeDto getCurrentWeather(WeatherMeDto var1) {
+    public WeatherMeDto getCurrentWeather(WeatherMeDto var1) throws Exception {
 
         String response = "";
 
@@ -80,7 +80,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
     }
 
     @Override
-    public WeatherMeDto findById(WeatherMeDto var1) {
+    public WeatherMeDto findById(WeatherMeDto var1) throws Exception {
 
         WeatherId weatherId = serviceMapper.toWeatherId(var1);
 

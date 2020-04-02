@@ -16,12 +16,12 @@ public class WeatherMeDataImpl implements WeatherMeData {
     private WeatherRepository weatherRepository;
 
     @Override
-    public void save(Weather weather) {
+    public void save(Weather weather) throws Exception {
         weatherRepository.save(weather);
     }
 
     @Override
-    public Optional<Weather> findById(WeatherId weatherId) {
+    public Optional<Weather> findById(WeatherId weatherId) throws Exception {
         return weatherRepository.findById(weatherId);
     }
 
