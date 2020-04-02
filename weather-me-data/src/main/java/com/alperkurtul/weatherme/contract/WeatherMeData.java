@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public interface WeatherMeData {
 
-    void saveTemplate(Weather template);
+    void save(Weather weather);
 
-    Optional<Weather> findByIdTemplate(WeatherId weatherId);
+    Optional<Weather> findById(WeatherId weatherId);
 
 }

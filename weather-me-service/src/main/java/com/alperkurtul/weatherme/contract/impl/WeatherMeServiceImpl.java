@@ -74,23 +74,23 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         weather.setWeatherJson(response);
         weather.setRequestUrl(requestUrl);
 
-        weatherMeData.saveTemplate(weather);
+        weatherMeData.save(weather);
 
         return weatherMeDto;
     }
 
     @Override
-    public WeatherMeDto findByIdTemplate(WeatherMeDto var1) {
+    public WeatherMeDto findById(WeatherMeDto var1) {
 
-        WeatherId templateId = serviceMapper.toWeatherId(var1);
+        WeatherId weatherId = serviceMapper.toWeatherId(var1);
 
-        Optional<Weather> optionalTemplate = weatherMeData.findByIdTemplate(templateId);
+        Optional<Weather> optionalWeather = weatherMeData.findById(weatherId);
 
-        if (!optionalTemplate.isPresent()) {
+        if (!optionalWeather.isPresent()) {
             throw new EntityNotFoundException(null, ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
         }
 
-        WeatherMeDto weatherMeDto = serviceMapper.toTemplateDto(optionalTemplate.get(), optionalTemplate.get().getWeatherId());
+        WeatherMeDto weatherMeDto = serviceMapper.toWeatherMeDto(optionalWeather.get(), optionalWeather.get().getWeatherId());
 
         return weatherMeDto;
     }

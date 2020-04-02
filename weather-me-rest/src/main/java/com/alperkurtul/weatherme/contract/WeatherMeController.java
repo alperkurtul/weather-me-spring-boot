@@ -1,18 +1,18 @@
 package com.alperkurtul.weatherme.contract;
 
-import com.alperkurtul.weatherme.bean.CurrentWeatherResponse;
-import com.alperkurtul.weatherme.bean.WeatherMeRequest;
+import com.alperkurtul.weatherme.model.CurrentWeatherResponse;
+import com.alperkurtul.weatherme.model.WeatherMeRequest;
 import org.springframework.web.bind.annotation.*;
 
 //@Validated
-@RequestMapping(value = "/template/v1")
+@RequestMapping(value = "/weatherme/v1")
 @CrossOrigin("*")
 public interface WeatherMeController {
 
     @GetMapping(value = "/getreq/{key}")
-    CurrentWeatherResponse getTemplate(@PathVariable("key") String key) throws Exception;
+    CurrentWeatherResponse getCurrentWeather(@PathVariable("key") String key) throws Exception;
 
-    @PostMapping(value = "/putreq")
-    CurrentWeatherResponse setTemplate(@RequestBody WeatherMeRequest request) throws Exception;
+    @PostMapping(value = "/findById")
+    CurrentWeatherResponse findById(@RequestBody WeatherMeRequest request) throws Exception;
 
 }

@@ -1,4 +1,4 @@
-package com.alperkurtul.weatherme.bean;
+package com.alperkurtul.weatherme.model;
 
 public class CurrentWeatherResponse {
 

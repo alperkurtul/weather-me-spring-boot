@@ -16,12 +16,12 @@ public class WeatherMeDataImpl implements WeatherMeData {
     private WeatherRepository weatherRepository;
 
     @Override
-    public void saveTemplate(Weather weather) {
+    public void save(Weather weather) {
         weatherRepository.save(weather);
     }
 
     @Override
-    public Optional<Weather> findByIdTemplate(WeatherId weatherId) {
+    public Optional<Weather> findById(WeatherId weatherId) {
         return weatherRepository.findById(weatherId);
     }
 

@@ -6,6 +6,6 @@ public interface WeatherMeService {
 
     WeatherMeDto getCurrentWeather(WeatherMeDto var1);
 
-    WeatherMeDto findByIdTemplate(WeatherMeDto var1);
+    WeatherMeDto findById(WeatherMeDto var1);
 
 }

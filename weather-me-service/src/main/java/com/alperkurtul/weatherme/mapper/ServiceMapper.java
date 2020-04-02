@@ -15,6 +15,6 @@ public interface ServiceMapper {
 
     Weather toWeather(WeatherMeDto output);
 
-    WeatherMeDto toTemplateDto(Weather output1, WeatherId output2);
+    WeatherMeDto toWeatherMeDto(Weather output1, WeatherId output2);
 
 }
