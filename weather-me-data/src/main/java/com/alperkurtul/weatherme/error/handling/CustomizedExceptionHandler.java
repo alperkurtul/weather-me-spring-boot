@@ -159,7 +159,9 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
         String message = messageAccessor.getMessage(returnCode, reasonCode);
         String details = "";
         if (ex.getCause() != null) {
-            details = ex.getCause().getMessage();
+            if (ex.getCause().getMessage() != null) {
+                details = ex.getCause().getMessage();
+            }
         }
 
         ExceptionResponse exceptionResponse = new ExceptionResponse(

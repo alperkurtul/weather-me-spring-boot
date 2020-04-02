@@ -1,13 +1,12 @@
 package com.alperkurtul.weatherme.error.handling;
 
 import com.alperkurtul.weatherme.error.exception.*;
-import com.sun.istack.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
 public class HttpExceptionDispatcher {
 
-    public void dispatchToException(@NotNull Exception e) {
+    public void dispatchToException(Exception e) {
 
         HttpStatus httpStatus = ((HttpClientErrorException) e).getStatusCode();
 
