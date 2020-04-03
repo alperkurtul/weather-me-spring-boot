@@ -32,6 +32,7 @@ public final class ErrorContants {
     public static final int REASON_CODE_HTTP_NOT_FOUND = 404;
     public static final int REASON_CODE_HTTP_INTERNAL_SERVER_ERROR = 500;
     // Other Return Codes
+    public static final int REASON_CODE_MANDATORY_INPUT_MISSING = 20;
     public static final int REASON_CODE_MANDATORY_VALIDATION_FAILED = 1200;
     public static final int REASON_CODE_ENTITY_NOT_FOUND = 10;
     public static final int REASON_CODE_ENTITY_CREATION_FAILED = 40;
