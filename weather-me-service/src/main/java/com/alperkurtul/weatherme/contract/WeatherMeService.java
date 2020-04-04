@@ -1,6 +1,9 @@
 package com.alperkurtul.weatherme.contract;
 
+import com.alperkurtul.weatherme.model.LocationDto;
 import com.alperkurtul.weatherme.model.WeatherMeDto;
+
+import java.util.List;
 
 public interface WeatherMeService {
 
@@ -8,8 +11,6 @@ public interface WeatherMeService {
 
     WeatherMeDto findById(WeatherMeDto var1) throws Exception;
 
-    String findLocationNameByLocationId(String locationId) throws Exception;
-
-    String findLocationIdByLocationName(String locationId) throws Exception;
+    List<LocationDto> findAllLocationByLocationName(String locationName) throws Exception;
 
 }

@@ -1,1 +1,2 @@
-INSERT INTO LOCATION(LocationId, LocationName, State, Country, Longitude, Latitude) VALUES(745042, 'Istanbul', '', '', '', '');
+INSERT INTO LOCATION(LocationId, LocationName, UpperCaseLocationName, State, Country, Longitude, Latitude) VALUES(745042, 'İstanbul', 'İSTANBUL', '', 'TR', '', '');
+INSERT INTO LOCATION(LocationId, LocationName, UpperCaseLocationName, State, Country, Longitude, Latitude) VALUES(745044, 'Istanbul', 'ISTANBUL', '', 'TR', '', '');

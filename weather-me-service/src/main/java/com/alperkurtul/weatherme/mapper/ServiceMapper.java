@@ -1,8 +1,6 @@
 package com.alperkurtul.weatherme.mapper;
 
-import com.alperkurtul.weatherme.model.Weather;
-import com.alperkurtul.weatherme.model.WeatherId;
-import com.alperkurtul.weatherme.model.WeatherMeDto;
+import com.alperkurtul.weatherme.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -16,5 +14,7 @@ public interface ServiceMapper {
     Weather toWeather(WeatherMeDto output);
 
     WeatherMeDto toWeatherMeDto(Weather output1, WeatherId output2);
+
+    LocationDto toLocationDto(Location output);
 
 }

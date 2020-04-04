@@ -9,10 +9,7 @@ import com.alperkurtul.weatherme.error.exception.EntityNotFoundException;
 import com.alperkurtul.weatherme.error.exception.MandatoryInputMissingException;
 import com.alperkurtul.weatherme.error.handling.HttpExceptionDispatcher;
 import com.alperkurtul.weatherme.mapper.ServiceMapper;
-import com.alperkurtul.weatherme.model.Location;
-import com.alperkurtul.weatherme.model.Weather;
-import com.alperkurtul.weatherme.model.WeatherId;
-import com.alperkurtul.weatherme.model.WeatherMeDto;
+import com.alperkurtul.weatherme.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
@@ -25,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -57,9 +55,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         // TODO : remove this code later
         if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
-            var1.setLocationId("745042");
+            var1.setLocationId("745044");
         }
-
 
 
         if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
@@ -173,13 +170,17 @@ public class WeatherMeServiceImpl implements WeatherMeService {
     }
 
     @Override
-    public String findLocationNameByLocationId(String locationId) throws Exception {
-        return null;
-    }
+    public List<LocationDto> findAllLocationByLocationName(String locationName) throws Exception {
 
-    @Override
-    public String findLocationIdByLocationName(String locationId) throws Exception {
-        return null;
+        List<Location> locationList = locationData.findAllLocationByLocationName(locationName);
+
+        List<LocationDto> locationDtoList = new ArrayList<>();
+        for (Location loc : locationList) {
+            LocationDto locationDto = serviceMapper.toLocationDto(loc);
+            locationDtoList.add(locationDto);
+        }
+
+        return locationDtoList;
     }
 
     private WeatherMeDto parseCurrentWeatherJson(String currentWeatherJson) {
@@ -291,7 +292,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             weatherMeDto.setSunSet("09-03-2020 19:03:55");
             weatherMeDto.setTimeZone("01-01-1970 03:00:00");
             weatherMeDto.setLocationId("745042");
-            weatherMeDto.setLocationName("İstanbul");
+            weatherMeDto.setLocationName("Istanbul");
         }
 
         return weatherMeDto;

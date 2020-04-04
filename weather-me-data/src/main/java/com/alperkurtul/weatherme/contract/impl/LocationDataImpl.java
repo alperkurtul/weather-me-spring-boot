@@ -9,6 +9,7 @@ import com.alperkurtul.weatherme.repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,6 +43,13 @@ public class LocationDataImpl implements LocationData {
     @Override
     public Optional<Location> findById(Integer locationId) throws Exception {
         return locationRepository.findById(locationId);
+    }
+
+    @Override
+    public List<Location> findAllLocationByLocationName(String locationName) throws Exception {
+
+        String upperCaseLocationName = locationName.toUpperCase();
+        return locationRepository.findAllByUpperCaseLocationNameIsContaining(upperCaseLocationName);
     }
 
 }

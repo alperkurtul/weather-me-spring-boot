@@ -1,35 +1,12 @@
 package com.alperkurtul.weatherme.model;
 
-import org.hibernate.annotations.Index;
+public class LocationDto {
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-@Entity
-public class Location {
-
-    @Id
-    @Column(name = "LocationId")
     private int locationId;
-
-    @Column(name = "LocationName", length = 50)
     private String locationName;
-
-    @Column(name = "UpperCaseLocationName", length = 50)
-    @Index(name = "locationNameIndex")
-    private String upperCaseLocationName;
-
-    @Column(name = "State", length = 50)
     private String state;
-
-    @Column(name = "Country", length = 50)
     private String country;
-
-    @Column(name = "Longitude")
     private String longitude;
-
-    @Column(name = "Latitude")
     private String latitude;
 
     public int getLocationId() {
@@ -46,14 +23,6 @@ public class Location {
 
     public void setLocationName(String locationName) {
         this.locationName = locationName;
-    }
-
-    public String getUpperCaseLocationName() {
-        return upperCaseLocationName;
-    }
-
-    public void setUpperCaseLocationName(String upperCaseLocationName) {
-        this.upperCaseLocationName = upperCaseLocationName;
     }
 
     public String getState() {
