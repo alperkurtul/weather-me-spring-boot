@@ -7,7 +7,9 @@ import java.util.Optional;
 
 public interface WeatherMeData {
 
-    void save(Weather weather) throws Exception ;
+    void create(Weather weather) throws Exception ;
+
+    void update(Weather weather) throws Exception ;
 
     Optional<Weather> findById(WeatherId weatherId) throws Exception;
 

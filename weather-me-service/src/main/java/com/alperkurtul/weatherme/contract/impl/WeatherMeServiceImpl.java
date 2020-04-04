@@ -134,15 +134,15 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                 weather.setLocationName(var1.getLocationName());
                 weather.setWeatherJson(response);
                 weather.setRequestUrl(requestUrl);
+                weatherMeData.create(weather);
             } else if ( createOrUpdateDb.equals("U") ) {
                 weather = weatherDataFromDb;
                 weather.setLocationName(var1.getLocationName());
                 weather.setWeatherJson(response);
                 weather.setRequestUrl(requestUrl);
                 weather.setCreateTime(LocalDateTime.now());
+                weatherMeData.update(weather);
             }
-
-            weatherMeData.save(weather);
         }
 
         return weatherMeDto;

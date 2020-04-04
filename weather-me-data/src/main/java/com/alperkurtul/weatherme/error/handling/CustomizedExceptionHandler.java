@@ -62,6 +62,17 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
+    @ExceptionHandler(EntityAlreadyExistException.class)
+    public final ResponseEntity<Object> handleEntityAlreadyExistException(EntityAlreadyExistException ex, WebRequest request) {
+
+        ExceptionResponse exceptionResponse = createExceptionResponse(
+                ErrorContants.RETURN_CODE_ENTITY_ALREADY_EXIST,
+                Integer.valueOf(ex.getMessage()), ex, request);
+
+        return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
+
+    }
+
     @ExceptionHandler(EntityDeletionFailedException.class)
     public final ResponseEntity<Object> handleEntityDeletionFailedException(EntityDeletionFailedException ex, WebRequest request) {
 
