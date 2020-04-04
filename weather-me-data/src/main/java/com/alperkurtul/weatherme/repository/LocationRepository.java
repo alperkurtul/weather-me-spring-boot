@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface LocationRepository extends JpaRepository<Location, Integer> {
 
-    List<Location> findAllByUpperCaseLocationNameIsContaining(String upperCaseLocationName);
+    List<Location> findAllByLowerCaseLocationNameIsContaining(String lowerCaseLocationName);
 
 }

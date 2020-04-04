@@ -13,6 +13,6 @@ public interface LocationData {
 
     Optional<Location> findById(Integer locationId) throws Exception;
 
-    List<Location> findAllLocationByLocationName(String locationName) throws Exception;
+    List<Location> findAllLocationByLocationName(String locationName, String language) throws Exception;
 
 }

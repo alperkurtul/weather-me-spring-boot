@@ -37,7 +37,8 @@ public class WeatherMeControllerImpl implements WeatherMeController {
     @Override
     public List<LocationResponse> getLocationList(String locationName) throws Exception {
 
-        List<LocationDto> locationDtoList = weatherMeService.findAllLocationByLocationName(locationName);
+        String language = "tr";
+        List<LocationDto> locationDtoList = weatherMeService.findAllLocationByLocationName(locationName, language);
 
         List<LocationResponse> locationResponseList = new ArrayList<>();
         for (LocationDto locationDto : locationDtoList) {

@@ -16,9 +16,9 @@ public class Location {
     @Column(name = "LocationName", length = 50)
     private String locationName;
 
-    @Column(name = "UpperCaseLocationName", length = 50)
-    @Index(name = "locationNameIndex")
-    private String upperCaseLocationName;
+    @Column(name = "LowerCaseLocationName", length = 50)
+    @Index(name = "LowerCaseLocationNameIndex")
+    private String lowerCaseLocationName;
 
     @Column(name = "State", length = 50)
     private String state;
@@ -48,12 +48,12 @@ public class Location {
         this.locationName = locationName;
     }
 
-    public String getUpperCaseLocationName() {
-        return upperCaseLocationName;
+    public String getLowerCaseLocationName() {
+        return lowerCaseLocationName;
     }
 
-    public void setUpperCaseLocationName(String upperCaseLocationName) {
-        this.upperCaseLocationName = upperCaseLocationName;
+    public void setLowerCaseLocationName(String lowerCaseLocationName) {
+        this.lowerCaseLocationName = lowerCaseLocationName;
     }
 
     public String getState() {

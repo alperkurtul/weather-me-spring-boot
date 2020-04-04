@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -46,10 +47,12 @@ public class LocationDataImpl implements LocationData {
     }
 
     @Override
-    public List<Location> findAllLocationByLocationName(String locationName) throws Exception {
+    public List<Location> findAllLocationByLocationName(String locationName, String language) throws Exception {
 
-        String upperCaseLocationName = locationName.toUpperCase();
-        return locationRepository.findAllByUpperCaseLocationNameIsContaining(upperCaseLocationName);
+        Locale locale = Locale.forLanguageTag(language);
+        String lowerCaseLocationName = locationName.toLowerCase(locale);
+
+        return locationRepository.findAllByLowerCaseLocationNameIsContaining(lowerCaseLocationName);
     }
 
 }

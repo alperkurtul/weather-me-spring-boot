@@ -21,10 +21,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class WeatherMeServiceImpl implements WeatherMeService {
@@ -51,7 +48,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String requestUrl = "";
         String createOrUpdateDb = "";  // C : create , U : Update
         String dataExistInDb = "N";  // Y : exist in DB , N : doesnt exist in DB
-        String createTimeExpired = "N";  // Y : expired  , N : doesnt expired
+        String createTimeExpired = "N";  // Y : expired , N : doesnt expired
 
         // TODO : remove this code later
         if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
@@ -170,9 +167,9 @@ public class WeatherMeServiceImpl implements WeatherMeService {
     }
 
     @Override
-    public List<LocationDto> findAllLocationByLocationName(String locationName) throws Exception {
+    public List<LocationDto> findAllLocationByLocationName(String locationName, String language) throws Exception {
 
-        List<Location> locationList = locationData.findAllLocationByLocationName(locationName);
+        List<Location> locationList = locationData.findAllLocationByLocationName(locationName, language);
 
         List<LocationDto> locationDtoList = new ArrayList<>();
         for (Location location : locationList) {
