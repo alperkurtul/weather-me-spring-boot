@@ -7,6 +7,7 @@ import com.alperkurtul.weatherme.repository.WeatherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -17,6 +18,9 @@ public class WeatherMeDataImpl implements WeatherMeData {
 
     @Override
     public void save(Weather weather) throws Exception {
+        if (weather.getCreateTime() == null) {
+            weather.setCreateTime(LocalDateTime.now());
+        }
         weatherRepository.save(weather);
     }
 

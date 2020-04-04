@@ -8,4 +8,8 @@ public interface WeatherMeService {
 
     WeatherMeDto findById(WeatherMeDto var1) throws Exception;
 
+    String findLocationNameByLocationId(String locationId) throws Exception;
+
+    String findLocationIdByLocationName(String locationId) throws Exception;
+
 }

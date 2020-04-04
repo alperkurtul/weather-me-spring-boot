@@ -1,0 +1,1 @@
+INSERT INTO LOCATION(LocationId, LocationName, State, Country, Longitude, Latitude) VALUES(745042, 'Istanbul', '', '', '', '');

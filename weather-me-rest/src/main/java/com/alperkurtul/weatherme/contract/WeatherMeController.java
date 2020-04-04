@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin("*")
 public interface WeatherMeController {
 
-    @GetMapping(value = "/getreq/{key}")
-    CurrentWeatherResponse getCurrentWeather(@PathVariable("key") String key) throws Exception;
+    @GetMapping(value = "/getcurrentweather/{locationid}")
+    CurrentWeatherResponse getCurrentWeather(@PathVariable("locationid") String locationId) throws Exception;
 
     @PostMapping(value = "/findById")
     CurrentWeatherResponse findById(@RequestBody WeatherMeRequest request) throws Exception;

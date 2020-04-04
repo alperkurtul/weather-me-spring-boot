@@ -5,6 +5,7 @@ import com.alperkurtul.weatherme.contract.WeatherMeService;
 import com.alperkurtul.weatherme.contract.WeatherMeData;
 import com.alperkurtul.weatherme.error.ErrorContants;
 import com.alperkurtul.weatherme.error.exception.EntityNotFoundException;
+import com.alperkurtul.weatherme.error.exception.MandatoryInputMissingException;
 import com.alperkurtul.weatherme.error.handling.HttpExceptionDispatcher;
 import com.alperkurtul.weatherme.mapper.ServiceMapper;
 import com.alperkurtul.weatherme.model.Weather;
@@ -18,6 +19,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -41,40 +43,107 @@ public class WeatherMeServiceImpl implements WeatherMeService {
     @Override
     public WeatherMeDto getCurrentWeather(WeatherMeDto var1) throws Exception {
 
+        Weather weatherDataFromDb = null;
         String response = "";
+        String requestUrl = "";
+        String createOrUpdateDb = "";  // C : create , U : Update
+        String dataExistInDb = "N";  // Y : exist in DB , N : doesnt exist in DB
+        String createTimeExpired = "N";  // Y : expired  , N : doesnt expired
 
-        //String requestUrl = "http://api.openweathermap.org/data/2.5/weather?q=Istanbul&lang=tr&units=metric&APPID=bcd5cca022de3d1a38619a0f353c5c77";
-        String apiUrl = weatherMeConfigurationProperties.getOpenweathermapsiteApiUrl();
-        String appId = weatherMeConfigurationProperties.getOpenweathermapsiteApiAppid();
-        String currentweatherSuffix = weatherMeConfigurationProperties.getOpenweathermapsiteApiCurrentweatherSuffix();
+        // TODO : remove this code later
+        if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
+            var1.setLocationId("745042");
+        }
 
-        String requestUrl = apiUrl + currentweatherSuffix +
-                "q=" + var1.getLocationName() +
-                "&lang=" + var1.getLanguage() +
-                "&units=" + var1.getUnits() +
-                "&appid=" + appId;
 
-        if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
-            try {
-                response = restTemplate.getForObject(requestUrl, String.class);
-            } catch (HttpClientErrorException e) {
-                new HttpExceptionDispatcher().dispatchToException(e);
-            }
+
+        if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
+            throw new MandatoryInputMissingException(null, ErrorContants.REASON_CODE_MANDATORY_INPUT_MISSING);
+        }
+
+        if (var1.getUnits() == null || var1.getUnits().isEmpty() ) {
+            var1.setUnits("metric");
+        }
+
+        if (var1.getLanguage() == null || var1.getLanguage().isEmpty()) {
+            var1.setLanguage("tr");
+        }
+
+        createOrUpdateDb = "";
+        createTimeExpired = "N";
+        Optional<Weather> optionalWeather = weatherMeData.findById(new WeatherId(var1.getLocationId(), var1.getLanguage(), var1.getUnits()));
+        if (!optionalWeather.isPresent()) {
+            dataExistInDb = "N";
+            createOrUpdateDb = "C";
         } else {
-            response = "DUMMY";
+            dataExistInDb = "Y";
+
+            weatherDataFromDb = optionalWeather.get();
+            if ( weatherDataFromDb.getCreateTime().plusHours(1).isBefore(LocalDateTime.now()) ) {
+                createTimeExpired = "Y";
+                createOrUpdateDb = "U";
+            }
+        }
+
+        if ( dataExistInDb.equals("N") || ( dataExistInDb.equals("Y") && createTimeExpired.equals("Y") ) ) {
+            if (var1.getLocationName() == null || var1.getLocationName().isEmpty()) {
+                var1.setLocationName("Istanbul");
+                // TODO : use findLocationNameByLocationId
+            }
+
+            //String requestUrl = "http://api.openweathermap.org/data/2.5/weather?q=Istanbul&lang=tr&units=metric&APPID=bcd5cca022de3d1a38619a0f353c5c77";
+            String apiUrl = weatherMeConfigurationProperties.getOpenweathermapsiteApiUrl();
+            String appId = weatherMeConfigurationProperties.getOpenweathermapsiteApiAppid();
+            String currentweatherSuffix = weatherMeConfigurationProperties.getOpenweathermapsiteApiCurrentweatherSuffix();
+
+            requestUrl = apiUrl + currentweatherSuffix +
+                    "q=" + var1.getLocationName() +
+                    "&lang=" + var1.getLanguage() +
+                    "&units=" + var1.getUnits() +
+                    "&appid=" + appId;
+        } else {
+            requestUrl = weatherDataFromDb.getRequestUrl();
+            response = weatherDataFromDb.getWeatherJson();
+            var1.setLocationName(weatherDataFromDb.getLocationName());
+        }
+
+        if ( dataExistInDb.equals("N") || ( dataExistInDb.equals("Y") && createTimeExpired.equals("Y") ) ) {
+            if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
+                try {
+                    response = restTemplate.getForObject(requestUrl, String.class);
+                } catch (HttpClientErrorException e) {
+                    new HttpExceptionDispatcher().dispatchToException(e);
+                }
+            } else {
+                response = "DUMMY";
+            }
         }
 
         WeatherMeDto weatherMeDto = parseCurrentWeatherJson(response);
+        weatherMeDto.setLanguage(var1.getLanguage());
+        weatherMeDto.setUnits(var1.getUnits());
 
-        Weather weather = new Weather();
-        WeatherId weatherId = new WeatherId(weatherMeDto.getLocationId(),
-                var1.getLanguage(),
-                var1.getUnits());
-        weather.setWeatherId(weatherId);
-        weather.setWeatherJson(response);
-        weather.setRequestUrl(requestUrl);
+        if ( createOrUpdateDb.equals("C") || createOrUpdateDb.equals("U") ) {
+            Weather weather = null;
+            if ( createOrUpdateDb.equals("C") ) {
+                weather = new Weather();
+                WeatherId weatherId = new WeatherId(weatherMeDto.getLocationId(),
+                        var1.getLanguage(),
+                        var1.getUnits());
+                weather.setWeatherId(weatherId);
+                weather.setLocationName(var1.getLocationName());
+                weather.setWeatherJson(response);
+                weather.setRequestUrl(requestUrl);
+            } else if ( createOrUpdateDb.equals("U") ) {
+                weather = weatherDataFromDb;
+                weather.setLocationName(var1.getLocationName());
+                weather.setWeatherJson(response);
+                weather.setRequestUrl(requestUrl);
+                weather.setCreateTime(LocalDateTime.now());
+            }
 
-        weatherMeData.save(weather);
+            weatherMeData.save(weather);
+        }
 
         return weatherMeDto;
     }
@@ -93,6 +162,16 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         WeatherMeDto weatherMeDto = serviceMapper.toWeatherMeDto(optionalWeather.get(), optionalWeather.get().getWeatherId());
 
         return weatherMeDto;
+    }
+
+    @Override
+    public String findLocationNameByLocationId(String locationId) throws Exception {
+        return null;
+    }
+
+    @Override
+    public String findLocationIdByLocationName(String locationId) throws Exception {
+        return null;
     }
 
     private WeatherMeDto parseCurrentWeatherJson(String currentWeatherJson) {

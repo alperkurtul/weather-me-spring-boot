@@ -3,18 +3,21 @@ package com.alperkurtul.weatherme.model;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import java.time.LocalDateTime;
 
 @Entity
 public class Weather {
 
     @EmbeddedId
     private WeatherId weatherId;
+    @Column(name = "LocationName")
+    private String locationName;
     @Column(name = "WeatherJson", length = 4096)
     private String weatherJson;
     @Column(name = "RequestUrl")
     private String requestUrl;
-    //@Column(name="CreateTime")
-    //private Timestamp createTime;
+    @Column(name="CreateTime")
+    private LocalDateTime createTime;
 
     public WeatherId getWeatherId() {
         return weatherId;
@@ -22,6 +25,14 @@ public class Weather {
 
     public void setWeatherId(WeatherId weatherId) {
         this.weatherId = weatherId;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 
     public String getWeatherJson() {
@@ -40,11 +51,11 @@ public class Weather {
         this.requestUrl = requestUrl;
     }
 
-    /*    public Timestamp getCreateTime() {
+    public LocalDateTime getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Timestamp createTime) {
+    public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
-    }*/
+    }
 }

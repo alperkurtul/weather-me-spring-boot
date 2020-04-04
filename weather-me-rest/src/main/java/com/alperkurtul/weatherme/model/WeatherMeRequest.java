@@ -7,6 +7,9 @@ public class WeatherMeRequest {
     private String language;
     private String units;
 
+    public WeatherMeRequest() {
+    }
+
     public WeatherMeRequest(String locationId, String locationName, String language, String units) {
         this.locationId = locationId;
         this.locationName = locationName;

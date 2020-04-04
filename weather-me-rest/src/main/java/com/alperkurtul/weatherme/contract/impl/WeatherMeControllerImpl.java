@@ -18,9 +18,10 @@ public class WeatherMeControllerImpl implements WeatherMeController {
     private RestMapper restMapper = RestMapper.INSTANCE;
 
     @Override
-    public CurrentWeatherResponse getCurrentWeather(String key) throws Exception {
+    public CurrentWeatherResponse getCurrentWeather( String locationId) throws Exception {
 
-        WeatherMeRequest weatherMeRequest = new WeatherMeRequest("","Istanbul", "tr", "metric");
+        WeatherMeRequest weatherMeRequest = new WeatherMeRequest();
+        weatherMeRequest.setLocationId(locationId);
 
         WeatherMeDto weatherMeDtoInput = restMapper.toWeatherMeDto(weatherMeRequest);
 
