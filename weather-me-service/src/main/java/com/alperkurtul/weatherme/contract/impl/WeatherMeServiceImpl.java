@@ -1,13 +1,15 @@
 package com.alperkurtul.weatherme.contract.impl;
 
 import com.alperkurtul.weatherme.configuration.WeatherMeConfigurationProperties;
+import com.alperkurtul.weatherme.contract.LocationData;
 import com.alperkurtul.weatherme.contract.WeatherMeService;
-import com.alperkurtul.weatherme.contract.WeatherMeData;
+import com.alperkurtul.weatherme.contract.WeatherData;
 import com.alperkurtul.weatherme.error.ErrorContants;
 import com.alperkurtul.weatherme.error.exception.EntityNotFoundException;
 import com.alperkurtul.weatherme.error.exception.MandatoryInputMissingException;
 import com.alperkurtul.weatherme.error.handling.HttpExceptionDispatcher;
 import com.alperkurtul.weatherme.mapper.ServiceMapper;
+import com.alperkurtul.weatherme.model.Location;
 import com.alperkurtul.weatherme.model.Weather;
 import com.alperkurtul.weatherme.model.WeatherId;
 import com.alperkurtul.weatherme.model.WeatherMeDto;
@@ -36,7 +38,10 @@ public class WeatherMeServiceImpl implements WeatherMeService {
     private RestTemplate restTemplate;
 
     @Autowired
-    private WeatherMeData weatherMeData;
+    private WeatherData weatherData;
+
+    @Autowired
+    private LocationData locationData;
 
     private ServiceMapper serviceMapper = ServiceMapper.INSTANCE;
 
@@ -71,7 +76,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         createOrUpdateDb = "";
         createTimeExpired = "N";
-        Optional<Weather> optionalWeather = weatherMeData.findById(new WeatherId(var1.getLocationId(), var1.getLanguage(), var1.getUnits()));
+        Optional<Weather> optionalWeather = weatherData.findById(new WeatherId(var1.getLocationId(), var1.getLanguage(), var1.getUnits()));
         if (!optionalWeather.isPresent()) {
             dataExistInDb = "N";
             createOrUpdateDb = "C";
@@ -87,8 +92,11 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         if ( dataExistInDb.equals("N") || ( dataExistInDb.equals("Y") && createTimeExpired.equals("Y") ) ) {
             if (var1.getLocationName() == null || var1.getLocationName().isEmpty()) {
-                var1.setLocationName("Istanbul");
-                // TODO : use findLocationNameByLocationId
+                Optional<Location> optionalLocation = locationData.findById(Integer.valueOf(var1.getLocationId()));
+                if (!optionalLocation.isPresent()) {
+                    throw new EntityNotFoundException(new Exception("Error in Location model"), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
+                }
+                var1.setLocationName(optionalLocation.get().getLocationName());
             }
 
             //String requestUrl = "http://api.openweathermap.org/data/2.5/weather?q=Istanbul&lang=tr&units=metric&APPID=bcd5cca022de3d1a38619a0f353c5c77";
@@ -134,14 +142,14 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                 weather.setLocationName(var1.getLocationName());
                 weather.setWeatherJson(response);
                 weather.setRequestUrl(requestUrl);
-                weatherMeData.create(weather);
+                weatherData.create(weather);
             } else if ( createOrUpdateDb.equals("U") ) {
                 weather = weatherDataFromDb;
                 weather.setLocationName(var1.getLocationName());
                 weather.setWeatherJson(response);
                 weather.setRequestUrl(requestUrl);
                 weather.setCreateTime(LocalDateTime.now());
-                weatherMeData.update(weather);
+                weatherData.update(weather);
             }
         }
 
@@ -153,7 +161,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         WeatherId weatherId = serviceMapper.toWeatherId(var1);
 
-        Optional<Weather> optionalWeather = weatherMeData.findById(weatherId);
+        Optional<Weather> optionalWeather = weatherData.findById(weatherId);
 
         if (!optionalWeather.isPresent()) {
             throw new EntityNotFoundException(null, ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);

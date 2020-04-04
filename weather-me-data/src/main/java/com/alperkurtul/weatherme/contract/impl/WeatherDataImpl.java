@@ -1,6 +1,6 @@
 package com.alperkurtul.weatherme.contract.impl;
 
-import com.alperkurtul.weatherme.contract.WeatherMeData;
+import com.alperkurtul.weatherme.contract.WeatherData;
 import com.alperkurtul.weatherme.error.ErrorContants;
 import com.alperkurtul.weatherme.error.exception.EntityAlreadyExistException;
 import com.alperkurtul.weatherme.error.exception.EntityNotFoundException;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
-public class WeatherMeDataImpl implements WeatherMeData {
+public class WeatherDataImpl implements WeatherData {
 
     @Autowired
     private WeatherRepository weatherRepository;
@@ -24,7 +24,7 @@ public class WeatherMeDataImpl implements WeatherMeData {
 
         Optional<Weather> optionalWeather = weatherRepository.findById(weather.getWeatherId());
         if (optionalWeather.isPresent()) {
-            throw new EntityAlreadyExistException(null, ErrorContants.REASON_CODE_ENTITY_ALREADY_EXIST);
+            throw new EntityAlreadyExistException(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_ALREADY_EXIST);
         }
 
         if (weather.getCreateTime() == null) {
@@ -38,7 +38,7 @@ public class WeatherMeDataImpl implements WeatherMeData {
 
         Optional<Weather> optionalWeather = weatherRepository.findById(weather.getWeatherId());
         if (!optionalWeather.isPresent()) {
-            throw new EntityNotFoundException(null, ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
+            throw new EntityNotFoundException(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
         }
 
         if (weather.getCreateTime() == null) {

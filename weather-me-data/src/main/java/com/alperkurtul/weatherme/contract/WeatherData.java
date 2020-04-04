@@ -5,7 +5,7 @@ import com.alperkurtul.weatherme.model.WeatherId;
 
 import java.util.Optional;
 
-public interface WeatherMeData {
+public interface WeatherData {
 
     void create(Weather weather) throws Exception ;
 
