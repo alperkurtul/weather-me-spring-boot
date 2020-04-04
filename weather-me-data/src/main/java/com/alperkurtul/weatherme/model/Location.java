@@ -1,5 +1,7 @@
 package com.alperkurtul.weatherme.model;
 
+import org.hibernate.annotations.Index;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,6 +13,7 @@ public class Location {
     @Column(name = "LocationId")
     private int locationId;
     @Column(name = "LocationName", length = 50)
+    @Index(name = "locationNameIndex")
     private String locationName;
     @Column(name = "State", length = 50)
     private String state;

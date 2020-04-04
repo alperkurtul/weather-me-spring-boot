@@ -63,7 +63,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
 
         if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
-            throw new MandatoryInputMissingException(null, ErrorContants.REASON_CODE_MANDATORY_INPUT_MISSING);
+            throw new MandatoryInputMissingException(new Exception("locationId not valid"), ErrorContants.REASON_CODE_MANDATORY_INPUT_MISSING);
         }
 
         if (var1.getUnits() == null || var1.getUnits().isEmpty() ) {
@@ -164,7 +164,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         Optional<Weather> optionalWeather = weatherData.findById(weatherId);
 
         if (!optionalWeather.isPresent()) {
-            throw new EntityNotFoundException(null, ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
+            throw new EntityNotFoundException(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
         }
 
         WeatherMeDto weatherMeDto = serviceMapper.toWeatherMeDto(optionalWeather.get(), optionalWeather.get().getWeatherId());
