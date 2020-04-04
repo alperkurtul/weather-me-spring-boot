@@ -1,8 +1,6 @@
 package com.alperkurtul.weatherme.mapper;
 
-import com.alperkurtul.weatherme.model.CurrentWeatherResponse;
-import com.alperkurtul.weatherme.model.WeatherMeDto;
-import com.alperkurtul.weatherme.model.WeatherMeRequest;
+import com.alperkurtul.weatherme.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -14,5 +12,7 @@ public interface RestMapper {
     WeatherMeDto toWeatherMeDto(WeatherMeRequest output);
 
     CurrentWeatherResponse toCurrentWeatherResponse(WeatherMeDto output);
+
+    LocationResponse toLocationResponse(LocationDto output);
 
 }

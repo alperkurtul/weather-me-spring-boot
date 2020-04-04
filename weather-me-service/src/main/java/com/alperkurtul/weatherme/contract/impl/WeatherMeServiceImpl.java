@@ -175,8 +175,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         List<Location> locationList = locationData.findAllLocationByLocationName(locationName);
 
         List<LocationDto> locationDtoList = new ArrayList<>();
-        for (Location loc : locationList) {
-            LocationDto locationDto = serviceMapper.toLocationDto(loc);
+        for (Location location : locationList) {
+            LocationDto locationDto = serviceMapper.toLocationDto(location);
             locationDtoList.add(locationDto);
         }
 

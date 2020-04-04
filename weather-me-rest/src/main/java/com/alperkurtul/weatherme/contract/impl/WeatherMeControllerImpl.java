@@ -1,13 +1,14 @@
 package com.alperkurtul.weatherme.contract.impl;
 
 import com.alperkurtul.weatherme.mapper.RestMapper;
-import com.alperkurtul.weatherme.model.CurrentWeatherResponse;
-import com.alperkurtul.weatherme.model.WeatherMeDto;
-import com.alperkurtul.weatherme.model.WeatherMeRequest;
+import com.alperkurtul.weatherme.model.*;
 import com.alperkurtul.weatherme.contract.WeatherMeService;
 import com.alperkurtul.weatherme.contract.WeatherMeController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class WeatherMeControllerImpl implements WeatherMeController {
@@ -34,16 +35,18 @@ public class WeatherMeControllerImpl implements WeatherMeController {
     }
 
     @Override
-    public CurrentWeatherResponse findById(WeatherMeRequest request) throws Exception {
+    public List<LocationResponse> getLocationList(String locationName) throws Exception {
 
-        WeatherMeDto weatherMeDtoInput = restMapper.toWeatherMeDto(request);
+        List<LocationDto> locationDtoList = weatherMeService.findAllLocationByLocationName(locationName);
 
-        WeatherMeDto weatherMeDtoOutput = weatherMeService.findById(weatherMeDtoInput);
+        List<LocationResponse> locationResponseList = new ArrayList<>();
+        for (LocationDto locationDto : locationDtoList) {
+            LocationResponse locationResponse = restMapper.toLocationResponse(locationDto);
+            locationResponseList.add(locationResponse);
+        }
 
-        CurrentWeatherResponse currentWeatherResponse = restMapper.toCurrentWeatherResponse(weatherMeDtoOutput);
-
-        return currentWeatherResponse;
-
+        return locationResponseList;
     }
+
 
 }
