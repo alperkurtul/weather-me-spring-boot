@@ -1,8 +1,8 @@
-package com.alperkurtul.weatherme.json.location;
+package com.alperkurtul.weatherme.json.currentweather;
 
-public class Coord {
-    String lon;
-    String lat;
+public class CWCoordInfo {
+    private String lon;
+    private String lat;
 
     public String getLon() {
         return lon;

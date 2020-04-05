@@ -8,6 +8,7 @@ import com.alperkurtul.weatherme.error.ErrorContants;
 import com.alperkurtul.weatherme.error.exception.EntityNotFoundException;
 import com.alperkurtul.weatherme.error.exception.MandatoryInputMissingException;
 import com.alperkurtul.weatherme.error.handling.HttpExceptionDispatcher;
+import com.alperkurtul.weatherme.json.currentweather.CurrentWeather;
 import com.alperkurtul.weatherme.json.location.WeatherLocation;
 import com.alperkurtul.weatherme.mapper.ServiceMapper;
 import com.alperkurtul.weatherme.model.*;
@@ -236,8 +237,6 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        //Location location = objectMapper.readValue(new File("/Users/alperkurtul/Desktop/city.list2.json"), Location.class);
-
         WeatherLocation[] locations = objectMapper.readValue(new File("/Users/alperkurtul/Desktop/city.list.json"), WeatherLocation[].class);
 
         logger.info("locations.length: " + locations.length);
@@ -275,7 +274,70 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
     }
 
-    private WeatherMeDto parseCurrentWeatherJson(String currentWeatherJson) {
+    private WeatherMeDto parseCurrentWeatherJson(String currentWeatherJson) throws Exception {
+
+        WeatherMeDto weatherMeDto;
+
+        if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            CurrentWeather currentWeather = objectMapper.readValue(currentWeatherJson, CurrentWeather.class);
+
+            weatherMeDto = new WeatherMeDto();
+            weatherMeDto.setLocationId(currentWeather.getId());
+            weatherMeDto.setLocationName(currentWeather.getName());
+            weatherMeDto.setTimeZone(currentWeather.getTimezone());
+            weatherMeDto.setDescription(currentWeather.getWeather()[0].getDescription());
+            weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/" + currentWeather.getWeather()[0].getIcon() + ".png");
+            weatherMeDto.setRealTemprature(currentWeather.getMain().getTemp());
+            weatherMeDto.setFeelsTemprature(currentWeather.getMain().getFeels_like());
+            weatherMeDto.setMinTemprature(currentWeather.getMain().getTemp_min());
+            weatherMeDto.setMaxTemprature(currentWeather.getMain().getTemp_max());
+            weatherMeDto.setPressure(currentWeather.getMain().getPressure());
+            weatherMeDto.setHumidity(currentWeather.getMain().getHumidity());
+            weatherMeDto.setCountryCode(currentWeather.getSys().getCountry());
+            weatherMeDto.setSunRise(currentWeather.getSys().getSunrise());
+            weatherMeDto.setSunSet(currentWeather.getSys().getSunset());
+
+            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            long unixTime;
+            String formattedDtm;
+
+            unixTime = Long.valueOf(weatherMeDto.getSunRise()) + Long.valueOf(weatherMeDto.getTimeZone());
+            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+            weatherMeDto.setSunRise(formattedDtm);
+
+            unixTime = Long.valueOf(weatherMeDto.getSunSet()) + Long.valueOf(weatherMeDto.getTimeZone());
+            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+            weatherMeDto.setSunSet(formattedDtm);
+
+            unixTime = Long.valueOf(weatherMeDto.getTimeZone());
+            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+            weatherMeDto.setTimeZone(formattedDtm);
+
+        } else {
+            weatherMeDto = new WeatherMeDto();
+            weatherMeDto.setDescription("parçalı az bulutlu");
+            weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/03d.png");
+            weatherMeDto.setRealTemprature("12.93");
+            weatherMeDto.setFeelsTemprature("11.87");
+            weatherMeDto.setMinTemprature("11.11");
+            weatherMeDto.setMaxTemprature("15");
+            weatherMeDto.setPressure("1012");
+            weatherMeDto.setHumidity("67");
+            weatherMeDto.setCountryCode("TR");
+            weatherMeDto.setSunRise("09-03-2020 07:25:25");
+            weatherMeDto.setSunSet("09-03-2020 19:03:55");
+            weatherMeDto.setTimeZone("01-01-1970 03:00:00");
+            weatherMeDto.setLocationId("745042");
+            weatherMeDto.setLocationName("Istanbul");
+        }
+
+        return weatherMeDto;
+    }
+
+    /*private WeatherMeDto parseCurrentWeatherJsonOLD(String currentWeatherJson) {
 
         WeatherMeDto weatherMeDto;
 
@@ -388,6 +450,6 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         }
 
         return weatherMeDto;
-    }
+    }*/
 
 }

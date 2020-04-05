@@ -6,7 +6,7 @@ public class WeatherLocation {
     private String name;
     private String state;
     private String country;
-    private Coord coord;
+    private WLCoordInfo coord;
 
     public String getId() {
         return id;
@@ -40,11 +40,11 @@ public class WeatherLocation {
         this.country = country;
     }
 
-    public Coord getCoord() {
+    public WLCoordInfo getCoord() {
         return coord;
     }
 
-    public void setCoord(Coord coord) {
+    public void setCoord(WLCoordInfo coord) {
         this.coord = coord;
     }
 
