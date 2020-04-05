@@ -20,6 +20,11 @@ public class LocationDataImpl implements LocationData {
     private LocationRepository locationRepository;
 
     @Override
+    public void save(Location location) throws Exception {
+        locationRepository.save(location);
+    }
+
+    @Override
     public void create(Location location) throws Exception {
 
         Optional<Location> optionalLocation = locationRepository.findById(location.getLocationId());
@@ -28,6 +33,11 @@ public class LocationDataImpl implements LocationData {
         }
 
         locationRepository.save(location);
+    }
+
+    @Override
+    public void iterableCreate(Iterable<Location> locations) throws Exception {
+        locationRepository.saveAll(locations);
     }
 
     @Override

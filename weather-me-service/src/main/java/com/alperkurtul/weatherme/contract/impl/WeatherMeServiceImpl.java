@@ -8,8 +8,12 @@ import com.alperkurtul.weatherme.error.ErrorContants;
 import com.alperkurtul.weatherme.error.exception.EntityNotFoundException;
 import com.alperkurtul.weatherme.error.exception.MandatoryInputMissingException;
 import com.alperkurtul.weatherme.error.handling.HttpExceptionDispatcher;
+import com.alperkurtul.weatherme.json.location.WeatherLocation;
 import com.alperkurtul.weatherme.mapper.ServiceMapper;
 import com.alperkurtul.weatherme.model.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -39,6 +44,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
     private LocationData locationData;
 
     private ServiceMapper serviceMapper = ServiceMapper.INSTANCE;
+
+    private static Logger logger = LogManager.getLogger(WeatherMeServiceImpl.class);
 
     @Override
     public WeatherMeDto getCurrentWeather(WeatherMeDto var1) throws Exception {
@@ -121,25 +128,49 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             }
         }
 
-        WeatherMeDto weatherMeDto = parseCurrentWeatherJson(response);
-        weatherMeDto.setLanguage(var1.getLanguage());
-        weatherMeDto.setUnits(var1.getUnits());
+        WeatherMeDto weatherMeDtoOut = parseCurrentWeatherJson(response);
+        weatherMeDtoOut.setLanguage(var1.getLanguage());
+        weatherMeDtoOut.setUnits(var1.getUnits());
 
+        String createOrUpdateDbMain = "";
         if ( createOrUpdateDb.equals("C") || createOrUpdateDb.equals("U") ) {
-            Weather weather = null;
+            if (!var1.getLocationId().equals(weatherMeDtoOut.getLocationId())) {
+                createOrUpdateDbMain = createOrUpdateDb;
+                Optional<Weather> optionalWeather2 = weatherData.findById(new WeatherId(weatherMeDtoOut.getLocationId(), var1.getLanguage(), var1.getUnits()));
+                if (!optionalWeather2.isPresent()) {
+                    createOrUpdateDb = "C";
+                } else {
+                    createOrUpdateDb = "U";
+                    weatherDataFromDb = optionalWeather2.get();
+                }
+            }
+        }
+
+        Weather weather = null;
+        if ( createOrUpdateDb.equals("C") || createOrUpdateDb.equals("U") ) {
             if ( createOrUpdateDb.equals("C") ) {
                 weather = new Weather();
-                WeatherId weatherId = new WeatherId(weatherMeDto.getLocationId(),
+                WeatherId weatherId = new WeatherId(weatherMeDtoOut.getLocationId(),
                         var1.getLanguage(),
                         var1.getUnits());
                 weather.setWeatherId(weatherId);
-                weather.setLocationName(var1.getLocationName());
+                if ( !var1.getLocationId().equals(weatherMeDtoOut.getLocationId()) ) {
+                    Optional<Location> optionalLocation = locationData.findById(Integer.valueOf(weatherMeDtoOut.getLocationId()));
+                    weather.setLocationName( optionalLocation.isPresent() ? optionalLocation.get().getLocationName() : "" );
+                } else {
+                    weather.setLocationName(var1.getLocationName());
+                }
                 weather.setWeatherJson(response);
                 weather.setRequestUrl(requestUrl);
                 weatherData.create(weather);
             } else if ( createOrUpdateDb.equals("U") ) {
                 weather = weatherDataFromDb;
-                weather.setLocationName(var1.getLocationName());
+                if ( !var1.getLocationId().equals(weatherMeDtoOut.getLocationId()) ) {
+                    Optional<Location> optionalLocation = locationData.findById(Integer.valueOf(weatherMeDtoOut.getLocationId()));
+                    weather.setLocationName( optionalLocation.isPresent() ? optionalLocation.get().getLocationName() : "" );
+                } else {
+                    weather.setLocationName(var1.getLocationName());
+                }
                 weather.setWeatherJson(response);
                 weather.setRequestUrl(requestUrl);
                 weather.setCreateTime(LocalDateTime.now());
@@ -147,7 +178,27 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             }
         }
 
-        return weatherMeDto;
+        if ( createOrUpdateDb.equals("C") || createOrUpdateDb.equals("U") ) {
+            if (!var1.getLocationId().equals(weatherMeDtoOut.getLocationId())) {
+                Weather weather2 = new Weather();
+                WeatherId weatherId = new WeatherId(var1.getLocationId(),
+                        var1.getLanguage(),
+                        var1.getUnits());
+                weather2.setWeatherId(weatherId);
+                weather2.setLocationName(var1.getLocationName());
+                weather2.setWeatherJson(response);
+                weather2.setRequestUrl(requestUrl);
+                if (createOrUpdateDbMain.equals("C")) {
+                    weatherData.create(weather2);
+                } else if (createOrUpdateDbMain.equals("U")) {
+                    weather2.setCreateTime(LocalDateTime.now());
+                    weatherData.update(weather2);
+                }
+            }
+        }
+
+        return weatherMeDtoOut;
+
     }
 
     @Override
@@ -178,6 +229,50 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         }
 
         return locationDtoList;
+    }
+
+    @Override
+    public Boolean loadLocationsToDb() throws Exception {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        //Location location = objectMapper.readValue(new File("/Users/alperkurtul/Desktop/city.list2.json"), Location.class);
+
+        WeatherLocation[] locations = objectMapper.readValue(new File("/Users/alperkurtul/Desktop/city.list.json"), WeatherLocation[].class);
+
+        logger.info("locations.length: " + locations.length);
+
+        int saved = 0;
+        int savedInThisIteration = 0;
+        List<Location> locationsForIterable = new ArrayList<>();
+        for (WeatherLocation loc : locations) {
+            Location location = new Location();
+            location.setLocationId(Integer.valueOf(loc.getId()));
+            location.setLocationName(loc.getName());
+            location.setCountry(loc.getCountry());
+            location.setState(loc.getState());
+            location.setLongitude(loc.getCoord().getLon());
+            location.setLatitude(loc.getCoord().getLat());
+
+            Locale locale = Locale.forLanguageTag(loc.getCountry());
+            location.setLowerCaseLocationName(loc.getName().toLowerCase(locale));
+
+            locationsForIterable.add(location);
+
+            saved ++;
+            savedInThisIteration ++;
+            if ( ( saved % 20000 == 0 ) || ( saved == locations.length ) ) {
+                logger.info("Saving - locations.length: " + locations.length + "  / saving now    : " + savedInThisIteration + " records");
+                locationData.iterableCreate(locationsForIterable);
+                logger.info("SAVED  - locations.length: " + locations.length + "  / totally saved : " + saved + " records");
+                locationsForIterable.removeAll(locationsForIterable);
+                savedInThisIteration = 0;
+            }
+
+        }
+
+        return true;
+
     }
 
     private WeatherMeDto parseCurrentWeatherJson(String currentWeatherJson) {

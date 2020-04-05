@@ -7,7 +7,11 @@ import java.util.Optional;
 
 public interface LocationData {
 
+    void save(Location location) throws Exception ;
+
     void create(Location location) throws Exception ;
+
+    void iterableCreate(Iterable<Location> locations) throws Exception ;
 
     void update(Location location) throws Exception ;
 

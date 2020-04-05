@@ -13,4 +13,6 @@ public interface WeatherMeService {
 
     List<LocationDto> findAllLocationByLocationName(String locationName, String language) throws Exception;
 
+    Boolean loadLocationsToDb() throws Exception;
+
 }

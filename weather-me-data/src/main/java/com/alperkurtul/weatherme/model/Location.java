@@ -13,10 +13,10 @@ public class Location {
     @Column(name = "LocationId")
     private int locationId;
 
-    @Column(name = "LocationName", length = 50)
+    @Column(name = "LocationName", length = 100)
     private String locationName;
 
-    @Column(name = "LowerCaseLocationName", length = 50)
+    @Column(name = "LowerCaseLocationName", length = 100)
     @Index(name = "LowerCaseLocationNameIndex")
     private String lowerCaseLocationName;
 

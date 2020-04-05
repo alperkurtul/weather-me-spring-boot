@@ -17,4 +17,10 @@ public interface WeatherMeController {
     @GetMapping(value = "/getlocationlist")
     List<LocationResponse> getLocationList(@RequestParam("locationname") String locationName) throws Exception;
 
+    @GetMapping(value = "/loadlocationstodb")
+    Boolean loadLocationsToDb() throws Exception;
+
+    @GetMapping(value = "/devthings")
+    String developmentThings() throws Exception;
+
 }

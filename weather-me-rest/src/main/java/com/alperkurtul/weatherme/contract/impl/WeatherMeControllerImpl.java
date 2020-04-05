@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 public class WeatherMeControllerImpl implements WeatherMeController {
@@ -38,6 +39,7 @@ public class WeatherMeControllerImpl implements WeatherMeController {
     public List<LocationResponse> getLocationList(String locationName) throws Exception {
 
         String language = "tr";
+
         List<LocationDto> locationDtoList = weatherMeService.findAllLocationByLocationName(locationName, language);
 
         List<LocationResponse> locationResponseList = new ArrayList<>();
@@ -49,5 +51,19 @@ public class WeatherMeControllerImpl implements WeatherMeController {
         return locationResponseList;
     }
 
+    @Override
+    public Boolean loadLocationsToDb() throws Exception {
+        return weatherMeService.loadLocationsToDb();
+    }
+
+    @Override
+    public String developmentThings() throws Exception {
+
+        String a = "START";
+
+        Locale[] locales = Locale.getAvailableLocales();
+
+        return "THE END!!!!";
+    }
 
 }
