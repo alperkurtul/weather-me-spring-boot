@@ -63,7 +63,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
 
         if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
-            throw new MandatoryInputMissingException(new Exception("locationId not valid"), ErrorContants.REASON_CODE_MANDATORY_INPUT_MISSING);
+            throw new MandatoryInputMissingException(new Exception("locationId not valid : " + var1.getLocationId() == null ? "null" : var1.getLocationId() ),
+                    ErrorContants.REASON_CODE_MANDATORY_INPUT_MISSING);
         }
 
         if (var1.getUnits() == null || var1.getUnits().isEmpty() ) {
@@ -74,23 +75,30 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             var1.setLanguage("tr");
         }
 
+        // check that location's weather info exists in DB
         createOrUpdateDb = "";
         createTimeExpired = "N";
         Optional<Weather> optionalWeather = weatherData.findById(new WeatherId(var1.getLocationId(), var1.getLanguage(), var1.getUnits()));
         if (!optionalWeather.isPresent()) {
+            // location's weather info does not exist in DB
             dataExistInDb = "N";
             createOrUpdateDb = "C";
         } else {
+            // location's weather info does exist in DB
             dataExistInDb = "Y";
 
+            // check that location's weather info in DB has expired or not
             weatherDataFromDb = optionalWeather.get();
             if ( weatherDataFromDb.getCreateTime().plusHours(1).isBefore(LocalDateTime.now()) ) {
+                // location's weather info in DB has expired
                 createTimeExpired = "Y";
                 createOrUpdateDb = "U";
             }
         }
 
+        // check if we have to call the API again to get weather info
         if ( dataExistInDb.equals("N") || ( dataExistInDb.equals("Y") && createTimeExpired.equals("Y") ) ) {
+            // we have to call the API again to get weather info
             if (var1.getLocationName() == null || var1.getLocationName().isEmpty()) {
                 Optional<Location> optionalLocation = locationData.findById(Integer.valueOf(var1.getLocationId()));
                 if (!optionalLocation.isPresent()) {
@@ -109,13 +117,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                     "&lang=" + var1.getLanguage() +
                     "&units=" + var1.getUnits() +
                     "&appid=" + appId;
-        } else {
-            requestUrl = weatherDataFromDb.getRequestUrl();
-            response = weatherDataFromDb.getWeatherJson();
-            var1.setLocationName(weatherDataFromDb.getLocationName());
-        }
 
-        if ( dataExistInDb.equals("N") || ( dataExistInDb.equals("Y") && createTimeExpired.equals("Y") ) ) {
+            // Call the API to get new Weather info if 'ConnectToRealApi' parameter is 'YES'
             if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
                 try {
                     response = restTemplate.getForObject(requestUrl, String.class);
@@ -125,15 +128,26 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             } else {
                 response = "DUMMY";
             }
+        } else {
+            // we dont need to call the API again. We can use the weather info from DB
+            requestUrl = weatherDataFromDb.getRequestUrl();
+            response = weatherDataFromDb.getWeatherJson();
+            var1.setLocationName(weatherDataFromDb.getLocationName());
         }
 
+        // Parse weather info JSON data
         WeatherMeDto weatherMeDtoOut = parseCurrentWeatherJson(response);
         weatherMeDtoOut.setLanguage(var1.getLanguage());
         weatherMeDtoOut.setUnits(var1.getUnits());
 
+        // check if we have to create or update record to DB
         String createOrUpdateDbMain = "";
+        Weather weather = null;
         if ( createOrUpdateDb.equals("C") || createOrUpdateDb.equals("U") ) {
+
+            // Check if it is equal 'call API locationID' to 'response locationId', or not
             if (!var1.getLocationId().equals(weatherMeDtoOut.getLocationId())) {
+                // 'call API locationId' is not equal to 'response locationId'
                 createOrUpdateDbMain = createOrUpdateDb;
                 Optional<Weather> optionalWeather2 = weatherData.findById(new WeatherId(weatherMeDtoOut.getLocationId(), var1.getLanguage(), var1.getUnits()));
                 if (!optionalWeather2.isPresent()) {
@@ -143,10 +157,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                     weatherDataFromDb = optionalWeather2.get();
                 }
             }
-        }
 
-        Weather weather = null;
-        if ( createOrUpdateDb.equals("C") || createOrUpdateDb.equals("U") ) {
+            // 'response locationId' is being processed
             if ( createOrUpdateDb.equals("C") ) {
                 weather = new Weather();
                 WeatherId weatherId = new WeatherId(weatherMeDtoOut.getLocationId(),
@@ -175,9 +187,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                 weather.setCreateTime(LocalDateTime.now());
                 weatherData.update(weather);
             }
-        }
 
-        if ( createOrUpdateDb.equals("C") || createOrUpdateDb.equals("U") ) {
+            // 'call API locationId' is being processed
             if (!var1.getLocationId().equals(weatherMeDtoOut.getLocationId())) {
                 Weather weather2 = new Weather();
                 WeatherId weatherId = new WeatherId(var1.getLocationId(),
@@ -194,6 +205,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                     weatherData.update(weather2);
                 }
             }
+
         }
 
         return weatherMeDtoOut;
