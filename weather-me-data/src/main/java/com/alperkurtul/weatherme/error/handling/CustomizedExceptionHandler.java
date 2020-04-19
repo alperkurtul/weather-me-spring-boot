@@ -91,7 +91,7 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
                 ErrorContants.RETURN_CODE_ENTITY_NOT_FOUND,
                 Integer.valueOf(ex.getMessage()), ex, request);
 
-        return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity(exceptionResponse, HttpStatus.NOT_FOUND);
 
     }
 

@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.JsonParser;
-import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -96,7 +94,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             if (var1.getLocationName() == null || var1.getLocationName().isEmpty()) {
                 Optional<Location> optionalLocation = locationData.findById(Integer.valueOf(var1.getLocationId()));
                 if (!optionalLocation.isPresent()) {
-                    throw new EntityNotFoundException(new Exception("Error in Location model"), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
+                    throw new EntityNotFoundException(new Exception("couldn't find locationId : " + var1.getLocationId()), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
                 }
                 var1.setLocationName(optionalLocation.get().getLocationName());
             }
@@ -336,120 +334,5 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         return weatherMeDto;
     }
-
-    /*private WeatherMeDto parseCurrentWeatherJsonOLD(String currentWeatherJson) {
-
-        WeatherMeDto weatherMeDto;
-
-        if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
-
-            weatherMeDto = new WeatherMeDto();
-
-            JsonParser jsonParser = JsonParserFactory.getJsonParser();
-            Map<String, Object> mapJson = jsonParser.parseMap(currentWeatherJson);
-
-            System.out.println("response: " + currentWeatherJson);
-            String mapArray[] = new String[mapJson.size()];
-            System.out.println("Items found: " + mapArray.length);
-
-            for (Map.Entry<String, Object> entry : mapJson.entrySet()) {
-
-                System.out.println(entry.toString() + " ## " + entry.getKey() + " ## " + entry.getValue());
-
-                if (entry.getKey().equals("id")) {
-
-                    weatherMeDto.setLocationId(entry.getValue().toString());
-
-                } else if (entry.getKey().equals("name")) {
-
-                    weatherMeDto.setLocationName(entry.getValue().toString());
-
-                } else if (entry.getKey().equals("timezone")) {
-
-                    weatherMeDto.setTimeZone(entry.getValue().toString());
-
-                } else if (entry.getKey().equals("weather")) {
-
-                    Map<String, Object> mapJson2 = (Map<String, Object>) ((ArrayList) entry.getValue()).get(0);
-                    for (Map.Entry<String, Object> entry2 : mapJson2.entrySet()) {
-                        if (entry2.getKey().equals("description")) {
-                            weatherMeDto.setDescription(entry2.getValue().toString());
-                        } else if (entry2.getKey().equals("icon")) {
-                            weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/" + entry2.getValue().toString() + ".png");
-                        }
-                    }
-
-                } else if (entry.getKey().equals("main")) {
-
-                    Map<String, Object> mapJson2 = (Map<String, Object>) entry.getValue();
-                    for (Map.Entry<String, Object> entry2 : mapJson2.entrySet()) {
-                        if (entry2.getKey().equals("temp")) {
-                            weatherMeDto.setRealTemprature(entry2.getValue().toString());
-                        } else if (entry2.getKey().equals("feels_like")) {
-                            weatherMeDto.setFeelsTemprature(entry2.getValue().toString());
-                        } else if (entry2.getKey().equals("temp_min")) {
-                            weatherMeDto.setMinTemprature(entry2.getValue().toString());
-                        } else if (entry2.getKey().equals("temp_max")) {
-                            weatherMeDto.setMaxTemprature(entry2.getValue().toString());
-                        } else if (entry2.getKey().equals("pressure")) {
-                            weatherMeDto.setPressure(entry2.getValue().toString());
-                        } else if (entry2.getKey().equals("humidity")) {
-                            weatherMeDto.setHumidity(entry2.getValue().toString());
-                        }
-                    }
-
-                } else if (entry.getKey().equals("sys")) {
-
-                    Map<String, Object> mapJson2 = (Map<String, Object>) entry.getValue();
-                    for (Map.Entry<String, Object> entry2 : mapJson2.entrySet()) {
-                        if (entry2.getKey().equals("country")) {
-                            weatherMeDto.setCountryCode(entry2.getValue().toString());
-                        } else if (entry2.getKey().equals("sunrise")) {
-                            weatherMeDto.setSunRise(entry2.getValue().toString());
-                        } else if (entry2.getKey().equals("sunset")) {
-                            weatherMeDto.setSunSet(entry2.getValue().toString());
-                        }
-                    }
-
-                }
-
-            }
-
-            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-            long unixTime;
-            String formattedDtm;
-
-            unixTime = Long.valueOf(weatherMeDto.getSunRise()) + Long.valueOf(weatherMeDto.getTimeZone());
-            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-            weatherMeDto.setSunRise(formattedDtm);
-
-            unixTime = Long.valueOf(weatherMeDto.getSunSet()) + Long.valueOf(weatherMeDto.getTimeZone());
-            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-            weatherMeDto.setSunSet(formattedDtm);
-
-            unixTime = Long.valueOf(weatherMeDto.getTimeZone());
-            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-            weatherMeDto.setTimeZone(formattedDtm);
-
-        } else {
-            weatherMeDto = new WeatherMeDto();
-            weatherMeDto.setDescription("parçalı az bulutlu");
-            weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/03d.png");
-            weatherMeDto.setRealTemprature("12.93");
-            weatherMeDto.setFeelsTemprature("11.87");
-            weatherMeDto.setMinTemprature("11.11");
-            weatherMeDto.setMaxTemprature("15");
-            weatherMeDto.setPressure("1012");
-            weatherMeDto.setHumidity("67");
-            weatherMeDto.setCountryCode("TR");
-            weatherMeDto.setSunRise("09-03-2020 07:25:25");
-            weatherMeDto.setSunSet("09-03-2020 19:03:55");
-            weatherMeDto.setTimeZone("01-01-1970 03:00:00");
-            weatherMeDto.setLocationId("745042");
-            weatherMeDto.setLocationName("Istanbul");
-        }
-
-        return weatherMeDto;
-    }*/
 
 }
