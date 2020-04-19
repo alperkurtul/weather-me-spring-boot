@@ -20,7 +20,7 @@ public interface WeatherMeController {
     @GetMapping(value = "/loadlocationstodb")
     Boolean loadLocationsToDb() throws Exception;
 
-    @GetMapping(value = "/devthings")
+    @GetMapping(value = "/development-things")
     String developmentThings() throws Exception;
 
 }
