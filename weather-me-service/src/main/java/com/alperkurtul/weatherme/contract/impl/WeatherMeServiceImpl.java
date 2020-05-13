@@ -271,9 +271,9 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             saved ++;
             savedInThisIteration ++;
             if ( ( saved % 20000 == 0 ) || ( saved == locations.length ) ) {
-                logger.info("Saving - locations.length: " + locations.length + "  / saving now    : " + savedInThisIteration + " records");
+                logger.info("Saving - locations.length: " + locations.length + "  / saving now   : " + savedInThisIteration + " records");
                 locationData.iterableCreate(locationsForIterable);
-                logger.info("SAVED  - locations.length: " + locations.length + "  / totally saved : " + saved + " records");
+                logger.info("SAVED  - locations.length: " + locations.length + "  / totally saved: " + saved + " records");
                 locationsForIterable.removeAll(locationsForIterable);
                 savedInThisIteration = 0;
             }
