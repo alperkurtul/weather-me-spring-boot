@@ -10,7 +10,7 @@ import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import java.util.Locale;
 
 @Configuration
-public class WeatherMeConfiguration {
+public class WeatherMeAppConfiguration {
 
     @Bean
     public RestTemplate restTemplate() {
