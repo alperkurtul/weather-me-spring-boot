@@ -247,7 +247,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        WeatherLocation[] locations = objectMapper.readValue(new File("/Users/alperkurtul/Desktop/city.list.json"), WeatherLocation[].class);
+        WeatherLocation[] locations = objectMapper.readValue(new File("city.list.json"), WeatherLocation[].class);
 
         logger.info("locations.length: " + locations.length);
 
