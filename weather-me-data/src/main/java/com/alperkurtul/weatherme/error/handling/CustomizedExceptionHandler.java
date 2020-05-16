@@ -165,7 +165,7 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
 
 
-    private ExceptionResponse createExceptionResponse(int returnCode, int reasonCode, RuntimeException ex, WebRequest request) {
+    private ExceptionResponse createExceptionResponse(int returnCode, int reasonCode, Exception ex, WebRequest request) {
 
         String message = messageAccessor.getMessage(returnCode, reasonCode);
         String details = "";
