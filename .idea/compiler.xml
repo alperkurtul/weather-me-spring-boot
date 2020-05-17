@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="weather-me-service" />
+        <module name="weather-me-app" />
+        <module name="weather-me-rest" />
+        <module name="weather-me-data" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="weather-me-app" target="1.8" />
+      <module name="weather-me-data" target="1.8" />
+      <module name="weather-me-parent" target="1.8" />
+      <module name="weather-me-rest" target="1.8" />
+      <module name="weather-me-service" target="1.8" />
+      <module name="weather-me-spring-boot" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="weather-me-app" options="-parameters" />
+      <module name="weather-me-data" options="-parameters" />
+      <module name="weather-me-parent" options="-parameters" />
+      <module name="weather-me-rest" options="-parameters" />
+      <module name="weather-me-service" options="-parameters" />
+      <module name="weather-me-spring-boot" options="-parameters" />
+    </option>
+  </component>
+</project>
