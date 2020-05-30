@@ -6,14 +6,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="weather-me-data" />
         <module name="weather-me-service" />
         <module name="weather-me-app" />
         <module name="weather-me-rest" />
-        <module name="weather-me-data" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="weather-me-app" target="1.8" />
+      <module name="weather-me-bom" target="1.8" />
       <module name="weather-me-data" target="1.8" />
       <module name="weather-me-parent" target="1.8" />
       <module name="weather-me-rest" target="1.8" />
@@ -23,11 +24,11 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="weather-me-app" options="-parameters" />
-      <module name="weather-me-data" options="-parameters" />
+      <module name="weather-me-app" options="" />
+      <module name="weather-me-data" options="" />
       <module name="weather-me-parent" options="-parameters" />
-      <module name="weather-me-rest" options="-parameters" />
-      <module name="weather-me-service" options="-parameters" />
+      <module name="weather-me-rest" options="" />
+      <module name="weather-me-service" options="" />
       <module name="weather-me-spring-boot" options="-parameters" />
     </option>
   </component>

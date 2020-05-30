@@ -42,7 +42,7 @@ public class WeatherMeControllerImpl implements WeatherMeController {
 
         List<LocationDto> locationDtoList = weatherMeService.findAllLocationByLocationName(locationName, language);
 
-        List<LocationResponse> locationResponseList = new ArrayList<>();
+        List<LocationResponse> locationResponseList = new ArrayList<LocationResponse>();
         for (LocationDto locationDto : locationDtoList) {
             LocationResponse locationResponse = restMapper.toLocationResponse(locationDto);
             locationResponseList.add(locationResponse);

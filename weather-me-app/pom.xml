@@ -2,28 +2,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <groupId>com.alperkurtul</groupId>
+        <groupId>com.alperkurtul.weatherme</groupId>
         <artifactId>weather-me-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../weather-me-parent</relativePath>
     </parent>
-    <groupId>com.alperkurtul</groupId>
+
     <artifactId>weather-me-app</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>weather-me-app</name>
-    <description>App Layer of Spring Boot Weather Me project</description>
+    <name>WeatherMe App Module</name>
+    <description>App Layer of WeatherMe Project</description>
     <packaging>jar</packaging>
-
-    <properties>
-        <java.version>1.8</java.version>
-    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.alperkurtul</groupId>
+            <groupId>com.alperkurtul.weatherme</groupId>
             <artifactId>weather-me-rest</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
         </dependency>
     </dependencies>
 
