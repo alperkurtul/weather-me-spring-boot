@@ -2,38 +2,36 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <groupId>com.alperkurtul</groupId>
+        <groupId>com.alperkurtul.weatherme</groupId>
         <artifactId>weather-me-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../weather-me-parent</relativePath>
     </parent>
-    <groupId>com.alperkurtul</groupId>
+
     <artifactId>weather-me-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>weather-me-service</name>
-    <description>Service Layer of Spring Boot Weather Me project</description>
+    <name>WeatherMe Service Module</name>
+    <description>Service Layer of WeatherMe Project</description>
     <packaging>jar</packaging>
-
-    <properties>
-        <java.version>1.8</java.version>
-    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.alperkurtul</groupId>
+            <groupId>com.alperkurtul.weatherme</groupId>
             <artifactId>weather-me-data</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <!--<build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>-->
 
 </project>

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/weather-me-app/weather-me-app.iml" filepath="$PROJECT_DIR$/weather-me-app/weather-me-app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/weather-me-bom/weather-me-bom.iml" filepath="$PROJECT_DIR$/weather-me-bom/weather-me-bom.iml" />
       <module fileurl="file://$PROJECT_DIR$/weather-me-data/weather-me-data.iml" filepath="$PROJECT_DIR$/weather-me-data/weather-me-data.iml" />
       <module fileurl="file://$PROJECT_DIR$/weather-me-parent/weather-me-parent.iml" filepath="$PROJECT_DIR$/weather-me-parent/weather-me-parent.iml" />
       <module fileurl="file://$PROJECT_DIR$/weather-me-rest/weather-me-rest.iml" filepath="$PROJECT_DIR$/weather-me-rest/weather-me-rest.iml" />
