@@ -7,18 +7,9 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "weather.me")
 public class WeatherMeConfigurationProperties {
 
-    private String connectToRealApi;
     private String openweathermapsiteApiAppid;
     private String openweathermapsiteApiUrl;
     private String openweathermapsiteApiCurrentweatherSuffix;
-
-    public String getConnectToRealApi() {
-        return connectToRealApi;
-    }
-
-    public void setConnectToRealApi(String connectToRealApi) {
-        this.connectToRealApi = connectToRealApi;
-    }
 
     public String getOpenweathermapsiteApiAppid() {
         return openweathermapsiteApiAppid;

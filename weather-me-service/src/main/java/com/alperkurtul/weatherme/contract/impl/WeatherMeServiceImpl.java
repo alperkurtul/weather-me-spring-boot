@@ -50,11 +50,12 @@ public class WeatherMeServiceImpl implements WeatherMeService {
     public WeatherMeDto getCurrentWeather(WeatherMeDto var1) throws Exception {
 
         Weather weatherDataFromDb = null;
+        Weather weatherDataFromDbMain = null;
         String response = "";
         String requestUrl = "";
         String createOrUpdateDb = "";  // C : create , U : Update
         String dataExistInDb = "N";  // Y : exist in DB , N : doesnt exist in DB
-        String createTimeExpired = "N";  // Y : expired , N : doesnt expired
+        String updateTimeExpired = "N";  // Y : expired , N : doesnt expired
 
         // TODO : remove this code later
         if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
@@ -77,8 +78,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         // check that location's weather info exists in DB
         createOrUpdateDb = "";
-        createTimeExpired = "N";
-        Optional<Weather> optionalWeather = weatherData.findById(new WeatherId(var1.getLocationId(), var1.getLanguage(), var1.getUnits()));
+        updateTimeExpired = "N";
+        Optional<Weather> optionalWeather = weatherData.findById(new WeatherId(Integer.valueOf(var1.getLocationId()), var1.getLanguage(), var1.getUnits()));
         if (!optionalWeather.isPresent()) {
             // location's weather info does not exist in DB
             dataExistInDb = "N";
@@ -89,15 +90,15 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
             // check that location's weather info in DB has expired or not
             weatherDataFromDb = optionalWeather.get();
-            if ( weatherDataFromDb.getCreateTime().plusHours(1).isBefore(LocalDateTime.now()) ) {
+            if ( weatherDataFromDb.getUpdateTime().plusHours(1).isBefore(LocalDateTime.now()) ) {
                 // location's weather info in DB has expired
-                createTimeExpired = "Y";
+                updateTimeExpired = "Y";
                 createOrUpdateDb = "U";
             }
         }
 
         // check if we have to call the API again to get weather info
-        if ( dataExistInDb.equals("N") || ( dataExistInDb.equals("Y") && createTimeExpired.equals("Y") ) ) {
+        if ( dataExistInDb.equals("N") || ( dataExistInDb.equals("Y") && updateTimeExpired.equals("Y") ) ) {
             // we have to call the API again to get weather info
             if (var1.getLocationName() == null || var1.getLocationName().isEmpty()) {
                 Optional<Location> optionalLocation = locationData.findById(Integer.valueOf(var1.getLocationId()));
@@ -118,16 +119,12 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                     "&units=" + var1.getUnits() +
                     "&appid=" + appId;
 
-            // Call the API to get new Weather info if 'ConnectToRealApi' parameter is 'YES'
-            if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
-                try {
-                    response = restTemplate.getForObject(requestUrl, String.class);
-                } catch (HttpClientErrorException e) {
-                    new HttpExceptionDispatcher().dispatchToException(e);
-                }
-            } else {
-                response = "DUMMY";
+            try {
+                response = restTemplate.getForObject(requestUrl, String.class);
+            } catch (HttpClientErrorException e) {
+                new HttpExceptionDispatcher().dispatchToException(e);
             }
+
         } else {
             // we dont need to call the API again. We can use the weather info from DB
             requestUrl = weatherDataFromDb.getRequestUrl();
@@ -149,7 +146,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             if (!var1.getLocationId().equals(weatherMeDtoOut.getLocationId())) {
                 // 'call API locationId' is not equal to 'response locationId'
                 createOrUpdateDbMain = createOrUpdateDb;
-                Optional<Weather> optionalWeather2 = weatherData.findById(new WeatherId(weatherMeDtoOut.getLocationId(), var1.getLanguage(), var1.getUnits()));
+                weatherDataFromDbMain = weatherDataFromDb;
+                Optional<Weather> optionalWeather2 = weatherData.findById(new WeatherId(Integer.valueOf(weatherMeDtoOut.getLocationId()), var1.getLanguage(), var1.getUnits()));
                 if (!optionalWeather2.isPresent()) {
                     createOrUpdateDb = "C";
                 } else {
@@ -161,7 +159,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             // 'response locationId' is being processed
             if ( createOrUpdateDb.equals("C") ) {
                 weather = new Weather();
-                WeatherId weatherId = new WeatherId(weatherMeDtoOut.getLocationId(),
+                WeatherId weatherId = new WeatherId(Integer.valueOf(weatherMeDtoOut.getLocationId()),
                         var1.getLanguage(),
                         var1.getUnits());
                 weather.setWeatherId(weatherId);
@@ -184,14 +182,14 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                 }
                 weather.setWeatherJson(response);
                 weather.setRequestUrl(requestUrl);
-                weather.setCreateTime(LocalDateTime.now());
+                weather.setUpdateTime(LocalDateTime.now());
                 weatherData.update(weather);
             }
 
             // 'call API locationId' is being processed
             if (!var1.getLocationId().equals(weatherMeDtoOut.getLocationId())) {
                 Weather weather2 = new Weather();
-                WeatherId weatherId = new WeatherId(var1.getLocationId(),
+                WeatherId weatherId = new WeatherId(Integer.valueOf(var1.getLocationId()),
                         var1.getLanguage(),
                         var1.getUnits());
                 weather2.setWeatherId(weatherId);
@@ -201,7 +199,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                 if (createOrUpdateDbMain.equals("C")) {
                     weatherData.create(weather2);
                 } else if (createOrUpdateDbMain.equals("U")) {
-                    weather2.setCreateTime(LocalDateTime.now());
+                    weather2.setCreateTime(weatherDataFromDbMain.getCreateTime());
+                    weather2.setUpdateTime(LocalDateTime.now());
                     weatherData.update(weather2);
                 }
             }
@@ -288,61 +287,41 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         WeatherMeDto weatherMeDto;
 
-        if (weatherMeConfigurationProperties.getConnectToRealApi().equals("YES")) {
+        ObjectMapper objectMapper = new ObjectMapper();
 
-            ObjectMapper objectMapper = new ObjectMapper();
+        CurrentWeather currentWeather = objectMapper.readValue(currentWeatherJson, CurrentWeather.class);
 
-            CurrentWeather currentWeather = objectMapper.readValue(currentWeatherJson, CurrentWeather.class);
+        weatherMeDto = new WeatherMeDto();
+        weatherMeDto.setLocationId(currentWeather.getId());
+        weatherMeDto.setLocationName(currentWeather.getName());
+        weatherMeDto.setTimeZone(currentWeather.getTimezone());
+        weatherMeDto.setDescription(currentWeather.getWeather()[0].getDescription());
+        weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/" + currentWeather.getWeather()[0].getIcon() + ".png");
+        weatherMeDto.setRealTemprature(currentWeather.getMain().getTemp());
+        weatherMeDto.setFeelsTemprature(currentWeather.getMain().getFeels_like());
+        weatherMeDto.setMinTemprature(currentWeather.getMain().getTemp_min());
+        weatherMeDto.setMaxTemprature(currentWeather.getMain().getTemp_max());
+        weatherMeDto.setPressure(currentWeather.getMain().getPressure());
+        weatherMeDto.setHumidity(currentWeather.getMain().getHumidity());
+        weatherMeDto.setCountryCode(currentWeather.getSys().getCountry());
+        weatherMeDto.setSunRise(currentWeather.getSys().getSunrise());
+        weatherMeDto.setSunSet(currentWeather.getSys().getSunset());
 
-            weatherMeDto = new WeatherMeDto();
-            weatherMeDto.setLocationId(currentWeather.getId());
-            weatherMeDto.setLocationName(currentWeather.getName());
-            weatherMeDto.setTimeZone(currentWeather.getTimezone());
-            weatherMeDto.setDescription(currentWeather.getWeather()[0].getDescription());
-            weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/" + currentWeather.getWeather()[0].getIcon() + ".png");
-            weatherMeDto.setRealTemprature(currentWeather.getMain().getTemp());
-            weatherMeDto.setFeelsTemprature(currentWeather.getMain().getFeels_like());
-            weatherMeDto.setMinTemprature(currentWeather.getMain().getTemp_min());
-            weatherMeDto.setMaxTemprature(currentWeather.getMain().getTemp_max());
-            weatherMeDto.setPressure(currentWeather.getMain().getPressure());
-            weatherMeDto.setHumidity(currentWeather.getMain().getHumidity());
-            weatherMeDto.setCountryCode(currentWeather.getSys().getCountry());
-            weatherMeDto.setSunRise(currentWeather.getSys().getSunrise());
-            weatherMeDto.setSunSet(currentWeather.getSys().getSunset());
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        long unixTime;
+        String formattedDtm;
 
-            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-            long unixTime;
-            String formattedDtm;
+        unixTime = Long.valueOf(weatherMeDto.getSunRise()) + Long.valueOf(weatherMeDto.getTimeZone());
+        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+        weatherMeDto.setSunRise(formattedDtm);
 
-            unixTime = Long.valueOf(weatherMeDto.getSunRise()) + Long.valueOf(weatherMeDto.getTimeZone());
-            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-            weatherMeDto.setSunRise(formattedDtm);
+        unixTime = Long.valueOf(weatherMeDto.getSunSet()) + Long.valueOf(weatherMeDto.getTimeZone());
+        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+        weatherMeDto.setSunSet(formattedDtm);
 
-            unixTime = Long.valueOf(weatherMeDto.getSunSet()) + Long.valueOf(weatherMeDto.getTimeZone());
-            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-            weatherMeDto.setSunSet(formattedDtm);
-
-            unixTime = Long.valueOf(weatherMeDto.getTimeZone());
-            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-            weatherMeDto.setTimeZone(formattedDtm);
-
-        } else {
-            weatherMeDto = new WeatherMeDto();
-            weatherMeDto.setDescription("parçalı az bulutlu");
-            weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/03d.png");
-            weatherMeDto.setRealTemprature("12.93");
-            weatherMeDto.setFeelsTemprature("11.87");
-            weatherMeDto.setMinTemprature("11.11");
-            weatherMeDto.setMaxTemprature("15");
-            weatherMeDto.setPressure("1012");
-            weatherMeDto.setHumidity("67");
-            weatherMeDto.setCountryCode("TR");
-            weatherMeDto.setSunRise("09-03-2020 07:25:25");
-            weatherMeDto.setSunSet("09-03-2020 19:03:55");
-            weatherMeDto.setTimeZone("01-01-1970 03:00:00");
-            weatherMeDto.setLocationId("745042");
-            weatherMeDto.setLocationName("Istanbul");
-        }
+        unixTime = Long.valueOf(weatherMeDto.getTimeZone());
+        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+        weatherMeDto.setTimeZone(formattedDtm);
 
         return weatherMeDto;
     }

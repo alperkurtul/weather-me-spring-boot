@@ -18,6 +18,8 @@ public class Weather {
     private String requestUrl;
     @Column(name="CreateTime")
     private LocalDateTime createTime;
+    @Column(name="UpdateTime")
+    private LocalDateTime updateTime;
 
     public WeatherId getWeatherId() {
         return weatherId;
@@ -57,5 +59,13 @@ public class Weather {
 
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 }
