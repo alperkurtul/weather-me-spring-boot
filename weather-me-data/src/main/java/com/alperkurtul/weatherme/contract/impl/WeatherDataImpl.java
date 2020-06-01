@@ -21,14 +21,20 @@ public class WeatherDataImpl implements WeatherData {
 
     @Override
     public void create(Weather weather) throws Exception {
+        LocalDateTime localDateTimeNow;
 
         Optional<Weather> optionalWeather = weatherRepository.findById(weather.getWeatherId());
         if (optionalWeather.isPresent()) {
             throw new EntityAlreadyExistException(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_ALREADY_EXIST);
         }
 
+        localDateTimeNow = LocalDateTime.now();
         if (weather.getCreateTime() == null) {
-            weather.setCreateTime(LocalDateTime.now());
+            weather.setCreateTime(localDateTimeNow);
+        }
+
+        if (weather.getUpdateTime() == null) {
+            weather.setUpdateTime(localDateTimeNow);
         }
         weatherRepository.save(weather);
     }
@@ -41,8 +47,8 @@ public class WeatherDataImpl implements WeatherData {
             throw new EntityNotFoundException(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
         }
 
-        if (weather.getCreateTime() == null) {
-            weather.setCreateTime(LocalDateTime.now());
+        if (weather.getUpdateTime() == null) {
+            weather.setUpdateTime(LocalDateTime.now());
         }
         weatherRepository.save(weather);
     }

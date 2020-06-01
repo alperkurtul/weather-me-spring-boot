@@ -8,26 +8,26 @@ import java.util.Objects;
 @Embeddable
 public class WeatherId implements Serializable {
     @Column(name = "LocationId")
-    private String locationId;
-    @Column(name = "Language")
+    private int locationId;
+    @Column(name = "Language", length = 10)
     private String language;
-    @Column(name = "Units")
+    @Column(name = "Units", length = 10)
     private String units;
 
     public WeatherId() {
     }
 
-    public WeatherId(String locationId, String language, String units) {
+    public WeatherId(int locationId, String language, String units) {
         this.locationId = locationId;
         this.language = language;
         this.units = units;
     }
 
-    public String getLocationId() {
+    public int getLocationId() {
         return locationId;
     }
 
-    public void setLocationId(String locationId) {
+    public void setLocationId(int locationId) {
         this.locationId = locationId;
     }
 
