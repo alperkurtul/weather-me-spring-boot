@@ -7,31 +7,49 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "weather.me")
 public class WeatherMeConfigurationProperties {
 
-    private String openweathermapsiteApiAppid;
-    private String openweathermapsiteApiUrl;
-    private String openweathermapsiteApiCurrentweatherSuffix;
+    private String apiAppid;
+    private String apiUrl;
+    private String apiSuffixForWeather;
+    private String apiCallValidityMinuteForWeather;
+    private String apiCallCountLimitPerMinuteForWeather;
 
-    public String getOpenweathermapsiteApiAppid() {
-        return openweathermapsiteApiAppid;
+    public String getApiAppid() {
+        return apiAppid;
     }
 
-    public void setOpenweathermapsiteApiAppid(String openweathermapsiteApiAppid) {
-        this.openweathermapsiteApiAppid = openweathermapsiteApiAppid;
+    public void setApiAppid(String apiAppid) {
+        this.apiAppid = apiAppid;
     }
 
-    public String getOpenweathermapsiteApiUrl() {
-        return openweathermapsiteApiUrl;
+    public String getApiUrl() {
+        return apiUrl;
     }
 
-    public void setOpenweathermapsiteApiUrl(String openweathermapsiteApiUrl) {
-        this.openweathermapsiteApiUrl = openweathermapsiteApiUrl;
+    public void setApiUrl(String apiUrl) {
+        this.apiUrl = apiUrl;
     }
 
-    public String getOpenweathermapsiteApiCurrentweatherSuffix() {
-        return openweathermapsiteApiCurrentweatherSuffix;
+    public String getApiSuffixForWeather() {
+        return apiSuffixForWeather;
     }
 
-    public void setOpenweathermapsiteApiCurrentweatherSuffix(String openweathermapsiteApiCurrentweatherSuffix) {
-        this.openweathermapsiteApiCurrentweatherSuffix = openweathermapsiteApiCurrentweatherSuffix;
+    public void setApiSuffixForWeather(String apiSuffixForWeather) {
+        this.apiSuffixForWeather = apiSuffixForWeather;
+    }
+
+    public String getApiCallValidityMinuteForWeather() {
+        return apiCallValidityMinuteForWeather;
+    }
+
+    public void setApiCallValidityMinuteForWeather(String apiCallValidityMinuteForWeather) {
+        this.apiCallValidityMinuteForWeather = apiCallValidityMinuteForWeather;
+    }
+
+    public String getApiCallCountLimitPerMinuteForWeather() {
+        return apiCallCountLimitPerMinuteForWeather;
+    }
+
+    public void setApiCallCountLimitPerMinuteForWeather(String apiCallCountLimitPerMinuteForWeather) {
+        this.apiCallCountLimitPerMinuteForWeather = apiCallCountLimitPerMinuteForWeather;
     }
 }
