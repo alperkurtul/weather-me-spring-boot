@@ -20,7 +20,7 @@ public class WeatherDataImpl implements WeatherData {
     private WeatherRepository weatherRepository;
 
     @Override
-    public void create(Weather weather) throws Exception {
+    public Weather create(Weather weather) throws Exception {
         LocalDateTime localDateTimeNow;
 
         Optional<Weather> optionalWeather = weatherRepository.findById(weather.getWeatherId());
@@ -37,10 +37,12 @@ public class WeatherDataImpl implements WeatherData {
             weather.setUpdateTime(localDateTimeNow);
         }
         weatherRepository.save(weather);
+
+        return weather;
     }
 
     @Override
-    public void update(Weather weather) throws Exception {
+    public Weather update(Weather weather) throws Exception {
 
         Optional<Weather> optionalWeather = weatherRepository.findById(weather.getWeatherId());
         if (!optionalWeather.isPresent()) {
@@ -51,6 +53,8 @@ public class WeatherDataImpl implements WeatherData {
             weather.setUpdateTime(LocalDateTime.now());
         }
         weatherRepository.save(weather);
+
+        return weather;
     }
 
     @Override
