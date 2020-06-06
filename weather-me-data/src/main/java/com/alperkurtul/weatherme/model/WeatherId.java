@@ -7,10 +7,13 @@ import java.util.Objects;
 
 @Embeddable
 public class WeatherId implements Serializable {
+
     @Column(name = "LocationId")
     private int locationId;
+
     @Column(name = "Language", length = 10)
     private String language;
+
     @Column(name = "Units", length = 10)
     private String units;
 

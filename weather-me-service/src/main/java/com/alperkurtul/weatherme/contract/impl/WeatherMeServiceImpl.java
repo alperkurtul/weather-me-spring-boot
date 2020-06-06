@@ -144,6 +144,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         // check if we have to create or update record to DB
         String createOrUpdateDbMain = "";
         Weather weather = null;
+        boolean apiCalledFlag = true;
         if ( createOrUpdateDb.equals("C") || createOrUpdateDb.equals("U") ) {
 
             // Check if it is equal 'call API locationID' to 'response locationId', or not
@@ -151,6 +152,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                 // 'call API locationId' is not equal to 'response locationId'
                 logger.info("'call API locationId' is not equal to 'response locationId'");
                 logger.info("Two records will be Created or Updated in Weather table !!!");
+                apiCalledFlag = false;
                 createOrUpdateDbMain = createOrUpdateDb;
                 weatherDataFromDbMain = weatherDataFromDb;
                 Optional<Weather> optionalWeather2 = weatherData.findById(new WeatherId(Integer.valueOf(weatherMeDtoOut.getLocationId()), var1.getLanguage(), var1.getUnits()));
@@ -196,6 +198,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                     weather.setRequestUrl(requestUrl);
                     weather.setUpdateTime(LocalDateTime.now());
                 }
+                weather.setApiCalledFlag(apiCalledFlag);
                 createOrUpdateWeather(weather, createOrUpdateDb);
             }
 
@@ -211,6 +214,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                 weather2.setLocationName(var1.getLocationName());
                 weather2.setWeatherJson(response);
                 weather2.setRequestUrl(requestUrl);
+                weather2.setApiCalledFlag(true);
                 if (createOrUpdateDbMain.equals("C") || createOrUpdateDbMain.equals("U")) {
                     if (createOrUpdateDbMain.equals("C")) {
                         logger.info("Second record is being Created. locationId: " + weather2.getWeatherId().getLocationId());
@@ -403,6 +407,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             weatherHistory.setRequestUrl(savedWeather.getRequestUrl());
             weatherHistory.setUpdateTime(savedWeather.getUpdateTime());
             weatherHistory.setWeatherJson(savedWeather.getWeatherJson());
+            weatherHistory.setApiCalledFlag(savedWeather.getApiCalledFlag());
 
             weatherHistoryData.save(weatherHistory);
 

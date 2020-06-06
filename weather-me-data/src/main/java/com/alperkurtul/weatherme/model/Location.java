@@ -1,12 +1,13 @@
 package com.alperkurtul.weatherme.model;
 
-import org.hibernate.annotations.Index;
+import org.springframework.stereotype.Indexed;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
+@Table(name = "Location", indexes = {
+        @Index(name = "IDX_LowerCaseLocationName", columnList = "LowerCaseLocationName")
+})
 public class Location {
 
     @Id
@@ -17,7 +18,6 @@ public class Location {
     private String locationName;
 
     @Column(name = "LowerCaseLocationName", length = 100)
-    @Index(name = "LowerCaseLocationNameIndex")
     private String lowerCaseLocationName;
 
     @Column(name = "State", length = 50)
