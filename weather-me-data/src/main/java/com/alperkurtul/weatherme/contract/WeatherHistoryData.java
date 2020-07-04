@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 public interface WeatherHistoryData {
 
-    void save(WeatherHistory weatherHistory) throws Exception ;
+    void create(WeatherHistory weatherHistory) throws Exception ;
 
-    Long calculateCallCount(LocalDateTime localDateTime) throws Exception ;
+    Long calculateCallCountSinceGivenHistoryCreateTime(LocalDateTime localDateTime) throws Exception ;
 
 }

@@ -104,8 +104,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             weatherDataFromDb = optionalWeather.get();
             logger.info("weatherMeConfigurationProperties.getApiCallValidityMinuteForWeather() : " + weatherMeConfigurationProperties.getApiCallValidityMinuteForWeather());
             logger.info("weatherDataFromDb.getUpdateTime() : " + weatherDataFromDb.getUpdateTime());
-            //if ( weatherDataFromDb.getUpdateTime().plusMinutes(Integer.valueOf(weatherMeConfigurationProperties.getApiCallValidityMinuteForWeather())).isBefore(LocalDateTime.now()) ) {
-            if ( true ) {    // TODO  :  This line is for testing. Remove this line while deployment
+            if ( weatherDataFromDb.getUpdateTime().plusMinutes(Integer.valueOf(weatherMeConfigurationProperties.getApiCallValidityMinuteForWeather())).isBefore(LocalDateTime.now()) ) {
+            //if ( true ) {    // TODO  :  This line is for testing. Remove this line while deployment
                 // location's weather info in DB has expired
                 logger.info("location's weather info in DB has expired !!");
                 updateTimeExpired = "Y";
@@ -122,7 +122,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
             // check if apiCallCountLimitPerMinute has Exceeded or not
             logger.info("check if apiCallCountLimitPerMinute has Exceeded or not !!");
-            Long apiCallCountLimitPerMinute = weatherHistoryData.calculateCallCount(LocalDateTime.now().minusMinutes(1));
+            Long apiCallCountLimitPerMinute = weatherHistoryData.calculateCallCountSinceGivenHistoryCreateTime(LocalDateTime.now().minusMinutes(1));
             logger.info("weatherMeConfigurationProperties.getApiCallCountLimitPerMinuteForWeather() : " + weatherMeConfigurationProperties.getApiCallCountLimitPerMinuteForWeather());
             logger.info("Occurence Count of apiCallCountLimitPerMinute : " + apiCallCountLimitPerMinute);
             if ( apiCallCountLimitPerMinute >= Long.valueOf(weatherMeConfigurationProperties.getApiCallCountLimitPerMinuteForWeather()) ) {
@@ -415,7 +415,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             WeatherHistoryId weatherHistoryId = new WeatherHistoryId(savedWeather.getWeatherId().getLocationId(),
                                                                     savedWeather.getWeatherId().getLanguage(),
                                                                     savedWeather.getWeatherId().getUnits(),
-                                                                    localDateTime);
+                                                                    localDateTime, 0);
             WeatherHistory weatherHistory = new WeatherHistory();
             weatherHistory.setWeatherHistoryId(weatherHistoryId);
             weatherHistory.setCreateTime(savedWeather.getCreateTime());
@@ -425,7 +425,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             weatherHistory.setWeatherJson(savedWeather.getWeatherJson());
             weatherHistory.setApiCalledFlag(savedWeather.getApiCalledFlag());
 
-            weatherHistoryData.save(weatherHistory);
+            weatherHistoryData.create(weatherHistory);
 
             logger.info("WeatherHistory Record has been Created. !!!");
         }
