@@ -51,22 +51,22 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(EntityCreationFailedExceptionN40.class)
-    public final ResponseEntity<Object> handleEntityCreationFailedException(EntityCreationFailedExceptionN40 ex, WebRequest request) {
+    @ExceptionHandler(EntityAlreadyExistExceptionN43.class)
+    public final ResponseEntity<Object> handleEntityAlreadyExistException(EntityAlreadyExistExceptionN43 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
-                ErrorContants.RETURN_CODE_ENTITY_CREATION_FAILED,
+                ErrorContants.RETURN_CODE_ENTITY_ALREADY_EXIST,
                 Integer.valueOf(ex.getMessage()), ex, request);
 
         return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
 
     }
 
-    @ExceptionHandler(EntityAlreadyExistExceptionN43.class)
-    public final ResponseEntity<Object> handleEntityAlreadyExistException(EntityAlreadyExistExceptionN43 ex, WebRequest request) {
+    @ExceptionHandler(EntityCreationFailedExceptionN40.class)
+    public final ResponseEntity<Object> handleEntityCreationFailedException(EntityCreationFailedExceptionN40 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
-                ErrorContants.RETURN_CODE_ENTITY_ALREADY_EXIST,
+                ErrorContants.RETURN_CODE_ENTITY_CREATION_FAILED,
                 Integer.valueOf(ex.getMessage()), ex, request);
 
         return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
@@ -100,6 +100,17 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_ENTITY_UPDATE_FAILED,
+                Integer.valueOf(ex.getMessage()), ex, request);
+
+        return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
+
+    }
+
+    @ExceptionHandler(ServiceValidationFailedExceptionN50.class)
+    public final ResponseEntity<Object> handleServiceValidationFailedException(ServiceValidationFailedExceptionN50 ex, WebRequest request) {
+
+        ExceptionResponse exceptionResponse = createExceptionResponse(
+                ErrorContants.RETURN_CODE_SERVICE_VALIDATION_FAILED,
                 Integer.valueOf(ex.getMessage()), ex, request);
 
         return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
