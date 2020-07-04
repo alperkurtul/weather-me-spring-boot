@@ -2,8 +2,8 @@ package com.alperkurtul.weatherme.contract.impl;
 
 import com.alperkurtul.weatherme.contract.WeatherData;
 import com.alperkurtul.weatherme.error.ErrorContants;
-import com.alperkurtul.weatherme.error.exception.EntityAlreadyExistException;
-import com.alperkurtul.weatherme.error.exception.EntityNotFoundException;
+import com.alperkurtul.weatherme.error.exception.EntityAlreadyExistExceptionN43;
+import com.alperkurtul.weatherme.error.exception.EntityNotFoundExceptionN10;
 import com.alperkurtul.weatherme.model.Weather;
 import com.alperkurtul.weatherme.model.WeatherId;
 import com.alperkurtul.weatherme.repository.WeatherRepository;
@@ -25,7 +25,7 @@ public class WeatherDataImpl implements WeatherData {
 
         Optional<Weather> optionalWeather = weatherRepository.findById(weather.getWeatherId());
         if (optionalWeather.isPresent()) {
-            throw new EntityAlreadyExistException(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_ALREADY_EXIST);
+            throw new EntityAlreadyExistExceptionN43(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_ALREADY_EXIST);
         }
 
         localDateTimeNow = LocalDateTime.now();
@@ -46,7 +46,7 @@ public class WeatherDataImpl implements WeatherData {
 
         Optional<Weather> optionalWeather = weatherRepository.findById(weather.getWeatherId());
         if (!optionalWeather.isPresent()) {
-            throw new EntityNotFoundException(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
+            throw new EntityNotFoundExceptionN10(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
         }
 
         if (weather.getUpdateTime() == null) {

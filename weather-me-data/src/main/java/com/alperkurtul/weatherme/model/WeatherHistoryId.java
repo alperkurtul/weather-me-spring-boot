@@ -21,14 +21,18 @@ public class WeatherHistoryId implements Serializable {
     @Column(name="HistoryCreateTime")
     private LocalDateTime historyCreateTime;
 
+    @Column(name="CounterForHistoryCreateTime")
+    private int counterForHistoryCreateTime;
+
     public WeatherHistoryId() {
     }
 
-    public WeatherHistoryId(int locationId, String language, String units, LocalDateTime historyCreateTime) {
+    public WeatherHistoryId(int locationId, String language, String units, LocalDateTime historyCreateTime, int counterForHistoryCreateTime) {
         this.locationId = locationId;
         this.language = language;
         this.units = units;
         this.historyCreateTime = historyCreateTime;
+        this.counterForHistoryCreateTime = counterForHistoryCreateTime;
     }
 
     public int getLocationId() {
@@ -63,12 +67,21 @@ public class WeatherHistoryId implements Serializable {
         this.historyCreateTime = historyCreateTime;
     }
 
+    public int getCounterForHistoryCreateTime() {
+        return counterForHistoryCreateTime;
+    }
+
+    public void setCounterForHistoryCreateTime(int counterForHistoryCreateTime) {
+        this.counterForHistoryCreateTime = counterForHistoryCreateTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WeatherHistoryId that = (WeatherHistoryId) o;
         return locationId == that.locationId &&
+                counterForHistoryCreateTime == that.counterForHistoryCreateTime &&
                 Objects.equals(language, that.language) &&
                 Objects.equals(units, that.units) &&
                 Objects.equals(historyCreateTime, that.historyCreateTime);
@@ -76,7 +89,7 @@ public class WeatherHistoryId implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(locationId, language, units, historyCreateTime);
+        return Objects.hash(locationId, language, units, historyCreateTime, counterForHistoryCreateTime);
     }
 
 }

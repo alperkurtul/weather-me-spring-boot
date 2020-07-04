@@ -18,8 +18,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
     @Autowired
     MessageAccessor messageAccessor;
 
-    @ExceptionHandler(UnexpectedException.class)
-    public final ResponseEntity<Object> handleUnexpectedException(UnexpectedException ex, WebRequest request) {
+    @ExceptionHandler(UnexpectedExceptionN99999.class)
+    public final ResponseEntity<Object> handleUnexpectedException(UnexpectedExceptionN99999 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_UNEXPECTED_EXCEPTION,
@@ -29,8 +29,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(MandatoryInputMissingException.class)
-    public final ResponseEntity<Object> handleMandatoryInputMissingException(MandatoryInputMissingException ex, WebRequest request) {
+    @ExceptionHandler(MandatoryInputMissingExceptionN20.class)
+    public final ResponseEntity<Object> handleMandatoryInputMissingException(MandatoryInputMissingExceptionN20 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_MANDATORY_INPUT_MISSING,
@@ -40,8 +40,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(MandatoryValidationFailedException.class)
-    public final ResponseEntity<Object> handleMandatoryValidationFailedException(MandatoryValidationFailedException ex, WebRequest request) {
+    @ExceptionHandler(MandatoryValidationFailedExceptionN21.class)
+    public final ResponseEntity<Object> handleMandatoryValidationFailedException(MandatoryValidationFailedExceptionN21 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_MANDATORY_VALIDATION_FAILED,
@@ -51,8 +51,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(EntityCreationFailedException.class)
-    public final ResponseEntity<Object> handleEntityCreationFailedException(EntityCreationFailedException ex, WebRequest request) {
+    @ExceptionHandler(EntityCreationFailedExceptionN40.class)
+    public final ResponseEntity<Object> handleEntityCreationFailedException(EntityCreationFailedExceptionN40 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_ENTITY_CREATION_FAILED,
@@ -62,8 +62,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(EntityAlreadyExistException.class)
-    public final ResponseEntity<Object> handleEntityAlreadyExistException(EntityAlreadyExistException ex, WebRequest request) {
+    @ExceptionHandler(EntityAlreadyExistExceptionN43.class)
+    public final ResponseEntity<Object> handleEntityAlreadyExistException(EntityAlreadyExistExceptionN43 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_ENTITY_ALREADY_EXIST,
@@ -73,8 +73,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(EntityDeletionFailedException.class)
-    public final ResponseEntity<Object> handleEntityDeletionFailedException(EntityDeletionFailedException ex, WebRequest request) {
+    @ExceptionHandler(EntityDeletionFailedExceptionN42.class)
+    public final ResponseEntity<Object> handleEntityDeletionFailedException(EntityDeletionFailedExceptionN42 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_ENTITY_DELETION_FAILED,
@@ -84,8 +84,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public final ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
+    @ExceptionHandler(EntityNotFoundExceptionN10.class)
+    public final ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundExceptionN10 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_ENTITY_NOT_FOUND,
@@ -95,8 +95,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(EntityUpdateFailedException.class)
-    public final ResponseEntity<Object> handleEntityUpdateFailedException(EntityUpdateFailedException ex, WebRequest request) {
+    @ExceptionHandler(EntityUpdateFailedExceptionN41.class)
+    public final ResponseEntity<Object> handleEntityUpdateFailedException(EntityUpdateFailedExceptionN41 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_ENTITY_UPDATE_FAILED,
@@ -106,8 +106,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(HttpNotFoundException.class)
-    public final ResponseEntity<Object> handleHttpNotFoundException(HttpNotFoundException ex, WebRequest request) {
+    @ExceptionHandler(HttpNotFoundExceptionN404.class)
+    public final ResponseEntity<Object> handleHttpNotFoundException(HttpNotFoundExceptionN404 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_HTTP_NOT_FOUND,
@@ -117,8 +117,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(HttpBadRequestException.class)
-    public final ResponseEntity<Object> handleHttpBadRequestException(HttpBadRequestException ex, WebRequest request) {
+    @ExceptionHandler(HttpBadRequestExceptionN400.class)
+    public final ResponseEntity<Object> handleHttpBadRequestException(HttpBadRequestExceptionN400 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_HTTP_BAD_REQUEST,
@@ -128,8 +128,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(HttpUnauthorizedException.class)
-    public final ResponseEntity<Object> handleHttpUnauthorizedException(HttpUnauthorizedException ex, WebRequest request) {
+    @ExceptionHandler(HttpUnauthorizedExceptionN401.class)
+    public final ResponseEntity<Object> handleHttpUnauthorizedException(HttpUnauthorizedExceptionN401 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_HTTP_UNAUTHORIZED,
@@ -139,8 +139,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(HttpInternalServerErrorException.class)
-    public final ResponseEntity<Object> handleHttpInternalServerErrorException(HttpInternalServerErrorException ex, WebRequest request) {
+    @ExceptionHandler(HttpInternalServerErrorExceptionN500.class)
+    public final ResponseEntity<Object> handleHttpInternalServerErrorException(HttpInternalServerErrorExceptionN500 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_HTTP_INTERNAL_SERVER_ERROR,
@@ -150,8 +150,8 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(HttpForbiddenException.class)
-    public final ResponseEntity<Object> handleHttpForbiddenException(HttpForbiddenException ex, WebRequest request) {
+    @ExceptionHandler(HttpForbiddenExceptionN403.class)
+    public final ResponseEntity<Object> handleHttpForbiddenException(HttpForbiddenExceptionN403 ex, WebRequest request) {
 
         ExceptionResponse exceptionResponse = createExceptionResponse(
                 ErrorContants.RETURN_CODE_HTTP_FORBIDDEN,

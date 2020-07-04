@@ -6,8 +6,8 @@ import com.alperkurtul.weatherme.contract.WeatherHistoryData;
 import com.alperkurtul.weatherme.contract.WeatherMeService;
 import com.alperkurtul.weatherme.contract.WeatherData;
 import com.alperkurtul.weatherme.error.ErrorContants;
-import com.alperkurtul.weatherme.error.exception.EntityNotFoundException;
-import com.alperkurtul.weatherme.error.exception.MandatoryInputMissingException;
+import com.alperkurtul.weatherme.error.exception.EntityNotFoundExceptionN10;
+import com.alperkurtul.weatherme.error.exception.MandatoryInputMissingExceptionN20;
 import com.alperkurtul.weatherme.error.handling.HttpExceptionDispatcher;
 import com.alperkurtul.weatherme.json.currentweather.CurrentWeather;
 import com.alperkurtul.weatherme.json.location.WeatherLocation;
@@ -71,8 +71,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
 
         if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
-            throw new MandatoryInputMissingException(new Exception("locationId not valid : " + var1.getLocationId() == null ? "null" : var1.getLocationId() ),
-                    ErrorContants.REASON_CODE_MANDATORY_INPUT_MISSING);
+            throw new MandatoryInputMissingExceptionN20(new Exception("locationId not valid : " + var1.getLocationId() == null ? "null" : var1.getLocationId() ),
+                    ErrorContants.REASON_CODE_MANDATORY_INPUT_MISSING_LOCATIONID);
         }
 
         if (var1.getUnits() == null || var1.getUnits().isEmpty() ) {
@@ -105,6 +105,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             logger.info("weatherMeConfigurationProperties.getApiCallValidityMinuteForWeather() : " + weatherMeConfigurationProperties.getApiCallValidityMinuteForWeather());
             logger.info("weatherDataFromDb.getUpdateTime() : " + weatherDataFromDb.getUpdateTime());
             if ( weatherDataFromDb.getUpdateTime().plusMinutes(Integer.valueOf(weatherMeConfigurationProperties.getApiCallValidityMinuteForWeather())).isBefore(LocalDateTime.now()) ) {
+            //if ( true ) {    // TODO  :  This line is for testing. Remove this line while deployment
                 // location's weather info in DB has expired
                 logger.info("location's weather info in DB has expired !!");
                 updateTimeExpired = "Y";
@@ -116,18 +117,33 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         // check if we have to call the API again to get weather info
         if ( dataExistInDb.equals("N") || ( dataExistInDb.equals("Y") && updateTimeExpired.equals("Y") ) ) {
-            // we have to call the API again to get weather info
-            logger.info("we have to call the API again to get weather info !!");
-            if (var1.getLocationName() == null || var1.getLocationName().isEmpty()) {
-                Optional<Location> optionalLocation = locationData.findById(Integer.valueOf(var1.getLocationId()));
-                if (!optionalLocation.isPresent()) {
-                    throw new EntityNotFoundException(new Exception("couldn't find locationId : " + var1.getLocationId()), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
+            // it may be needed to call the API again to get weather info
+            logger.info("it may be needed to call the API again to get weather info !!");
+
+            // check if apiCallCountLimitPerMinute has Exceeded or not
+            logger.info("check if apiCallCountLimitPerMinute has Exceeded or not !!");
+            Long apiCallCountLimitPerMinute = weatherHistoryData.calculateCallCountSinceGivenHistoryCreateTime(LocalDateTime.now().minusMinutes(1));
+            logger.info("weatherMeConfigurationProperties.getApiCallCountLimitPerMinuteForWeather() : " + weatherMeConfigurationProperties.getApiCallCountLimitPerMinuteForWeather());
+            logger.info("Occurence Count of apiCallCountLimitPerMinute : " + apiCallCountLimitPerMinute);
+            if ( apiCallCountLimitPerMinute >= Long.valueOf(weatherMeConfigurationProperties.getApiCallCountLimitPerMinuteForWeather()) ) {
+                // apiCallCountLimitPerMinute has Exceeded
+                logger.error("apiCallCountLimitPerMinute has Exceeded !!");
+                throw new EntityNotFoundExceptionN10(new Exception("apiCallCountLimitPerMinute has Exceeded. Max Count : " +
+                        weatherMeConfigurationProperties.getApiCallCountLimitPerMinuteForWeather()),
+                        ErrorContants.REASON_CODE_API_CALL_COUNT_EXCEEDED);
+            } else {
+                // we have to call the API again to get weather info
+                logger.info("we have to call the API again to get weather info !!");
+                if (var1.getLocationName() == null || var1.getLocationName().isEmpty()) {
+                    Optional<Location> optionalLocation = locationData.findById(Integer.valueOf(var1.getLocationId()));
+                    if (!optionalLocation.isPresent()) {
+                        throw new EntityNotFoundExceptionN10(new Exception("couldn't find locationId : " + var1.getLocationId()), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
+                    }
+                    var1.setLocationName(optionalLocation.get().getLocationName());
                 }
-                var1.setLocationName(optionalLocation.get().getLocationName());
+
+                response = callCurrentWeatherApi(var1);
             }
-
-            response = callCurrentWeatherApi(var1);
-
         } else {
             // we dont need to call the API again. We can use the weather info from DB
             logger.info("we dont need to call the API again. We can use the weather info from DB !!");
@@ -243,7 +259,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         Optional<Weather> optionalWeather = weatherData.findById(weatherId);
 
         if (!optionalWeather.isPresent()) {
-            throw new EntityNotFoundException(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
+            throw new EntityNotFoundExceptionN10(new Exception("Error in Weather model"), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
         }
 
         WeatherMeDto weatherMeDto = serviceMapper.toWeatherMeDto(optionalWeather.get(), optionalWeather.get().getWeatherId());
@@ -399,7 +415,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             WeatherHistoryId weatherHistoryId = new WeatherHistoryId(savedWeather.getWeatherId().getLocationId(),
                                                                     savedWeather.getWeatherId().getLanguage(),
                                                                     savedWeather.getWeatherId().getUnits(),
-                                                                    localDateTime);
+                                                                    localDateTime, 0);
             WeatherHistory weatherHistory = new WeatherHistory();
             weatherHistory.setWeatherHistoryId(weatherHistoryId);
             weatherHistory.setCreateTime(savedWeather.getCreateTime());
@@ -409,7 +425,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             weatherHistory.setWeatherJson(savedWeather.getWeatherJson());
             weatherHistory.setApiCalledFlag(savedWeather.getApiCalledFlag());
 
-            weatherHistoryData.save(weatherHistory);
+            weatherHistoryData.create(weatherHistory);
 
             logger.info("WeatherHistory Record has been Created. !!!");
         }

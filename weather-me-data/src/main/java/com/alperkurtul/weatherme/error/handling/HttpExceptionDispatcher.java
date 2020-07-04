@@ -11,17 +11,17 @@ public class HttpExceptionDispatcher {
         HttpStatus httpStatus = ((HttpClientErrorException) e).getStatusCode();
 
         if ( httpStatus.equals(HttpStatus.NOT_FOUND)) {
-            throw new HttpNotFoundException(e);
+            throw new HttpNotFoundExceptionN404(e);
         } else if ( httpStatus.equals(HttpStatus.BAD_REQUEST)) {
-            throw new HttpBadRequestException(e);
+            throw new HttpBadRequestExceptionN400(e);
         } else if ( httpStatus.equals(HttpStatus.FORBIDDEN)) {
-            throw new HttpForbiddenException(e);
+            throw new HttpForbiddenExceptionN403(e);
         } else if ( httpStatus.equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-            throw new HttpInternalServerErrorException(e);
+            throw new HttpInternalServerErrorExceptionN500(e);
         } else if ( httpStatus.equals(HttpStatus.UNAUTHORIZED)) {
-            throw new HttpUnauthorizedException(e);
+            throw new HttpUnauthorizedExceptionN401(e);
         } else {
-            throw new HttpBadRequestException(e);
+            throw new HttpBadRequestExceptionN400(e);
         }
 
     }
