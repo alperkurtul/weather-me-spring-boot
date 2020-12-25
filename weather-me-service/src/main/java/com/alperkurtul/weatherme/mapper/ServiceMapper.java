@@ -11,7 +11,7 @@ public interface ServiceMapper {
 
     WeatherId toWeatherId(WeatherMeDto output);
 
-    /*Weather toWeather(WeatherMeDto output);*/
+    Weather toWeather(WeatherMeDto output);
 
     WeatherMeDto toWeatherMeDto(Weather output1, WeatherId output2);
 
