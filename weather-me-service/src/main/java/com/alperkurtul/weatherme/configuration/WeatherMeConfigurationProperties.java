@@ -9,12 +9,21 @@ public class WeatherMeConfigurationProperties {
 
     private String apiAppid;
     private String apiUrl;
-    private String apiSuffixForWeather;
+    private String apiSuffixForCurrentWeather;
+    private String apiSuffixForForecastWeather;
     private String apiCallValidityMinuteForWeather;
     private String apiCallCountLimitPerMinuteForWeather;
 
     public String getApiAppid() {
         return apiAppid;
+    }
+
+    public String getApiSuffixForForecastWeather() {
+        return apiSuffixForForecastWeather;
+    }
+
+    public void setApiSuffixForForecastWeather(String apiSuffixForForecastWeather) {
+        this.apiSuffixForForecastWeather = apiSuffixForForecastWeather;
     }
 
     public void setApiAppid(String apiAppid) {
@@ -29,12 +38,12 @@ public class WeatherMeConfigurationProperties {
         this.apiUrl = apiUrl;
     }
 
-    public String getApiSuffixForWeather() {
-        return apiSuffixForWeather;
+    public String getApiSuffixForCurrentWeather() {
+        return apiSuffixForCurrentWeather;
     }
 
-    public void setApiSuffixForWeather(String apiSuffixForWeather) {
-        this.apiSuffixForWeather = apiSuffixForWeather;
+    public void setApiSuffixForCurrentWeather(String apiSuffixForCurrentWeather) {
+        this.apiSuffixForCurrentWeather = apiSuffixForCurrentWeather;
     }
 
     public String getApiCallValidityMinuteForWeather() {

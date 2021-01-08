@@ -11,6 +11,7 @@ import com.alperkurtul.weatherme.error.exception.MandatoryInputMissingExceptionN
 import com.alperkurtul.weatherme.error.handling.HttpExceptionDispatcher;
 import com.alperkurtul.weatherme.json.currentweather.CurrentWeather;
 import com.alperkurtul.weatherme.json.location.WeatherLocation;
+import com.alperkurtul.weatherme.json.threehourforecastfivedays.ThreeHourForecastFiveDays;
 import com.alperkurtul.weatherme.mapper.ServiceMapper;
 import com.alperkurtul.weatherme.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,6 +61,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         Weather weatherDataFromDb = null;
         Weather weatherDataFromDbMain = null;
         String response = "";
+        String response2 = "";
         String createOrUpdateDb = "";  // C : create , U : Update
         String dataExistInDb = "N";  // Y : exist in DB , N : doesnt exist in DB
         String updateTimeExpired = "N";  // Y : expired , N : doesnt expired
@@ -89,7 +91,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         createOrUpdateDb = "";
         updateTimeExpired = "N";
         Optional<Weather> optionalWeather = weatherData.findById(new WeatherId(Integer.valueOf(var1.getLocationId()), var1.getLanguage(), var1.getUnits()));
-        if (!optionalWeather.isPresent()) {
+        if (!optionalWeather.isPresent()){
             // location's weather info does not exist in DB
             logger.info("location's weather info does not exist in DB !!");
             dataExistInDb = "N";
@@ -152,6 +154,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             var1.setLocationName(weatherDataFromDb.getLocationName());
         }
 
+        //response2 = callForecastWeatherApi(var1);
+        //WeatherMeDto weatherMeDtoOut2 = parseForecastWeatherJson(response2);
         // Parse weather info JSON data
         WeatherMeDto weatherMeDtoOut = parseCurrentWeatherJson(response);
         weatherMeDtoOut.setLanguage(var1.getLanguage());
@@ -368,15 +372,60 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         return weatherMeDto;
     }
 
+    private WeatherMeDto parseForecastWeatherJson(String forecastWeatherJson) throws Exception {
+
+        logger.info("'WeatherMeServiceImpl.parseForecastWeatherJson' running...");
+
+        WeatherMeDto weatherMeDto;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        ThreeHourForecastFiveDays forecastWeather = objectMapper.readValue(forecastWeatherJson, ThreeHourForecastFiveDays.class);
+
+        weatherMeDto = new WeatherMeDto();
+        /*weatherMeDto.setLocationId(currentWeather.getId());
+        weatherMeDto.setLocationName(currentWeather.getName());
+        weatherMeDto.setTimeZone(currentWeather.getTimezone());
+        weatherMeDto.setDescription(currentWeather.getWeather()[0].getDescription());
+        weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/" + currentWeather.getWeather()[0].getIcon() + ".png");
+        weatherMeDto.setRealTemprature(currentWeather.getMain().getTemp());
+        weatherMeDto.setFeelsTemprature(currentWeather.getMain().getFeels_like());
+        weatherMeDto.setMinTemprature(currentWeather.getMain().getTemp_min());
+        weatherMeDto.setMaxTemprature(currentWeather.getMain().getTemp_max());
+        weatherMeDto.setPressure(currentWeather.getMain().getPressure());
+        weatherMeDto.setHumidity(currentWeather.getMain().getHumidity());
+        weatherMeDto.setCountryCode(currentWeather.getSys().getCountry());
+        weatherMeDto.setSunRise(currentWeather.getSys().getSunrise());
+        weatherMeDto.setSunSet(currentWeather.getSys().getSunset());
+
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        long unixTime;
+        String formattedDtm;
+
+        unixTime = Long.valueOf(weatherMeDto.getSunRise()) + Long.valueOf(weatherMeDto.getTimeZone());
+        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+        weatherMeDto.setSunRise(formattedDtm);
+
+        unixTime = Long.valueOf(weatherMeDto.getSunSet()) + Long.valueOf(weatherMeDto.getTimeZone());
+        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+        weatherMeDto.setSunSet(formattedDtm);
+
+        unixTime = Long.valueOf(weatherMeDto.getTimeZone());
+        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+        weatherMeDto.setTimeZone(formattedDtm);*/
+
+        return weatherMeDto;
+    }
+
     private String callCurrentWeatherApi(WeatherMeDto var1) {
 
         logger.info("'WeatherMeServiceImpl.callCurrentWeatherApi' running...");
 
         String apiUrl = weatherMeConfigurationProperties.getApiUrl();
         String appId = weatherMeConfigurationProperties.getApiAppid();
-        String currentweatherSuffix = weatherMeConfigurationProperties.getApiSuffixForWeather();
+        String currentWeatherSuffix = weatherMeConfigurationProperties.getApiSuffixForCurrentWeather();
 
-        requestUrl = apiUrl + currentweatherSuffix +
+        requestUrl = apiUrl + currentWeatherSuffix +
                 "q=" + var1.getLocationName() +
                 "&lang=" + var1.getLanguage() +
                 "&units=" + var1.getUnits() +
@@ -387,6 +436,34 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             logger.info("calling CurrentWeather API !!");
             response = restTemplate.getForObject(requestUrl, String.class);
             logger.info("returned response from CurrentWeather API !!");
+        } catch (HttpClientErrorException e) {
+            new HttpExceptionDispatcher().dispatchToException(e);
+        }
+
+        return response;
+
+    }
+
+    private String callForecastWeatherApi(WeatherMeDto var1) {
+
+        logger.info("'WeatherMeServiceImpl.callForecastWeatherApi' running...");
+
+        String apiUrl = weatherMeConfigurationProperties.getApiUrl();
+        String appId = weatherMeConfigurationProperties.getApiAppid();
+        String forecastWeatherSuffix = weatherMeConfigurationProperties.getApiSuffixForForecastWeather();
+
+        requestUrl = apiUrl + forecastWeatherSuffix +
+                "q=" + var1.getLocationName() +
+                "&lang=" + var1.getLanguage() +
+                "&units=" + var1.getUnits() +
+                "&cnt=" + "40" +
+                "&appid=" + appId;
+
+        String response = "";
+        try {
+            logger.info("calling ForecastWeather API !!");
+            response = restTemplate.getForObject(requestUrl, String.class);
+            logger.info("returned response from ForecastWeather API !!");
         } catch (HttpClientErrorException e) {
             new HttpExceptionDispatcher().dispatchToException(e);
         }

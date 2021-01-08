@@ -2,7 +2,7 @@ package com.alperkurtul.weatherme.json.currentweather;
 
 public class CurrentWeather {
 
-    private CWCoordInfo coord;
+    private CoordinateInfo coord;
     private WeatherInfo[] weather;
     private String base;
     private MainInfo main;
@@ -16,11 +16,11 @@ public class CurrentWeather {
     private String name;
     private String cod;
 
-    public CWCoordInfo getCoord() {
+    public CoordinateInfo getCoord() {
         return coord;
     }
 
-    public void setCoord(CWCoordInfo coord) {
+    public void setCoord(CoordinateInfo coord) {
         this.coord = coord;
     }
 
