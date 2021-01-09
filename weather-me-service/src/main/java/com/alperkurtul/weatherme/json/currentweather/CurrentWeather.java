@@ -9,6 +9,8 @@ public class CurrentWeather {
     private String visibility;
     private WindInfo wind;
     private CloudsInfo clouds;
+    private RainInfo rain;
+    private SnowInfo snow;
     private String dt;
     private SysInfo sys;
     private String timezone;
@@ -18,6 +20,22 @@ public class CurrentWeather {
 
     public CoordinateInfo getCoord() {
         return coord;
+    }
+
+    public SnowInfo getSnow() {
+        return snow;
+    }
+
+    public void setSnow(SnowInfo snow) {
+        this.snow = snow;
+    }
+
+    public RainInfo getRain() {
+        return rain;
+    }
+
+    public void setRain(RainInfo rain) {
+        this.rain = rain;
     }
 
     public void setCoord(CoordinateInfo coord) {

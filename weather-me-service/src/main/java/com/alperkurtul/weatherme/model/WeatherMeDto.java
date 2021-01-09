@@ -1,5 +1,7 @@
 package com.alperkurtul.weatherme.model;
 
+import java.util.ArrayList;
+
 public class WeatherMeDto {
 
     private String language;
@@ -19,9 +21,18 @@ public class WeatherMeDto {
     private String timeZone;
     private String locationId;
     private String locationName;
+    private ArrayList<WeatherNearFuture> nearFuture;
 
     public String getLanguage() {
         return language;
+    }
+
+    public ArrayList<WeatherNearFuture> getNearFuture() {
+        return nearFuture;
+    }
+
+    public void setNearFuture(ArrayList<WeatherNearFuture> nearFuture) {
+        this.nearFuture = nearFuture;
     }
 
     public void setLanguage(String language) {

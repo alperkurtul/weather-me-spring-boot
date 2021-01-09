@@ -32,7 +32,8 @@ import java.util.*;
 @Service
 public class WeatherMeServiceImpl implements WeatherMeService {
 
-    private String requestUrl = "";
+    private String weatherRequestUrl = "";
+    private String forecastRequestUrl = "";
 
     @Autowired
     private WeatherMeConfigurationProperties weatherMeConfigurationProperties;
@@ -60,11 +61,11 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
         Weather weatherDataFromDb = null;
         Weather weatherDataFromDbMain = null;
-        String response = "";
-        String response2 = "";
+        String weatherResponse = "";
+        String forecastResponse = "";
         String createOrUpdateDb = "";  // C : create , U : Update
-        String dataExistInDb = "N";  // Y : exist in DB , N : doesnt exist in DB
-        String updateTimeExpired = "N";  // Y : expired , N : doesnt expired
+        String dataExistInDb = "N";  // Y : exist in DB , N : does not exist in DB
+        String updateTimeExpired = "N";  // Y : expired , N : does not expired
 
         // TODO : remove this code later
         if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
@@ -126,7 +127,9 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             logger.info("check if apiCallCountLimitPerMinute has Exceeded or not !!");
             Long apiCallCountLimitPerMinute = weatherHistoryData.calculateCallCountSinceGivenHistoryCreateTime(LocalDateTime.now().minusMinutes(1));
             logger.info("weatherMeConfigurationProperties.getApiCallCountLimitPerMinuteForWeather() : " + weatherMeConfigurationProperties.getApiCallCountLimitPerMinuteForWeather());
+            logger.info("* ******************************************************************************* *");
             logger.info("Occurence Count of apiCallCountLimitPerMinute : " + apiCallCountLimitPerMinute);
+            logger.info("* ******************************************************************************* *");
             if ( apiCallCountLimitPerMinute >= Long.valueOf(weatherMeConfigurationProperties.getApiCallCountLimitPerMinuteForWeather()) ) {
                 // apiCallCountLimitPerMinute has Exceeded
                 logger.error("apiCallCountLimitPerMinute has Exceeded !!");
@@ -144,22 +147,27 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                     var1.setLocationName(optionalLocation.get().getLocationName());
                 }
 
-                response = callCurrentWeatherApi(var1);
+                weatherResponse = callCurrentWeatherApi(var1);
+                forecastResponse = callForecastWeatherApi(var1);
             }
         } else {
             // we dont need to call the API again. We can use the weather info from DB
             logger.info("we dont need to call the API again. We can use the weather info from DB !!");
-            requestUrl = weatherDataFromDb.getRequestUrl();
-            response = weatherDataFromDb.getWeatherJson();
+            weatherRequestUrl = weatherDataFromDb.getWeatherRequest();
+            forecastRequestUrl = weatherDataFromDb.getForecastRequest();
+            weatherResponse = weatherDataFromDb.getWeatherResponse();
+            forecastResponse = weatherDataFromDb.getForecastResponse();
             var1.setLocationName(weatherDataFromDb.getLocationName());
         }
 
-        //response2 = callForecastWeatherApi(var1);
-        //WeatherMeDto weatherMeDtoOut2 = parseForecastWeatherJson(response2);
         // Parse weather info JSON data
-        WeatherMeDto weatherMeDtoOut = parseCurrentWeatherJson(response);
+        WeatherMeDto weatherMeDtoOut = parseCurrentWeatherJson(weatherResponse);
         weatherMeDtoOut.setLanguage(var1.getLanguage());
         weatherMeDtoOut.setUnits(var1.getUnits());
+
+        // Parse forecast info JSON data
+        ArrayList<WeatherNearFuture> weatherNearFutures = parseForecastWeatherJson(forecastResponse);
+        weatherMeDtoOut.setNearFuture(weatherNearFutures);
 
         // check if we have to create or update record to DB
         String createOrUpdateDbMain = "";
@@ -203,8 +211,10 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                     } else {
                         weather.setLocationName(var1.getLocationName());
                     }
-                    weather.setWeatherJson(response);
-                    weather.setRequestUrl(requestUrl);
+                    weather.setWeatherRequest(weatherRequestUrl);
+                    weather.setWeatherResponse(weatherResponse);
+                    weather.setForecastRequest(forecastRequestUrl);
+                    weather.setForecastResponse(forecastResponse);
                 } else if (createOrUpdateDb.equals("U")) {
                     logger.info("'response API locationId: '" + weatherMeDtoOut.getLocationId() + " is being Updated");
                     weather = weatherDataFromDb;
@@ -214,8 +224,10 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                     } else {
                         weather.setLocationName(var1.getLocationName());
                     }
-                    weather.setWeatherJson(response);
-                    weather.setRequestUrl(requestUrl);
+                    weather.setWeatherRequest(weatherRequestUrl);
+                    weather.setWeatherResponse(weatherResponse);
+                    weather.setForecastRequest(forecastRequestUrl);
+                    weather.setForecastResponse(forecastResponse);
                     weather.setUpdateTime(LocalDateTime.now());
                 }
                 weather.setApiCalledFlag(apiCalledFlag);
@@ -232,8 +244,10 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                         var1.getUnits());
                 weather2.setWeatherId(weatherId);
                 weather2.setLocationName(var1.getLocationName());
-                weather2.setWeatherJson(response);
-                weather2.setRequestUrl(requestUrl);
+                weather2.setWeatherRequest(weatherRequestUrl);
+                weather2.setWeatherResponse(weatherResponse);
+                weather2.setForecastRequest(forecastRequestUrl);
+                weather2.setForecastResponse(forecastResponse);
                 weather2.setApiCalledFlag(true);
                 if (createOrUpdateDbMain.equals("C") || createOrUpdateDbMain.equals("U")) {
                     if (createOrUpdateDbMain.equals("C")) {
@@ -372,49 +386,66 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         return weatherMeDto;
     }
 
-    private WeatherMeDto parseForecastWeatherJson(String forecastWeatherJson) throws Exception {
+    private ArrayList<WeatherNearFuture> parseForecastWeatherJson(String forecastWeatherJson) throws Exception {
 
         logger.info("'WeatherMeServiceImpl.parseForecastWeatherJson' running...");
 
-        WeatherMeDto weatherMeDto;
+        ArrayList<WeatherNearFuture> weatherNearFutures = new ArrayList<>();
+        WeatherNearFuture weatherNearFuture;
 
         ObjectMapper objectMapper = new ObjectMapper();
 
         ThreeHourForecastFiveDays forecastWeather = objectMapper.readValue(forecastWeatherJson, ThreeHourForecastFiveDays.class);
 
-        weatherMeDto = new WeatherMeDto();
-        /*weatherMeDto.setLocationId(currentWeather.getId());
-        weatherMeDto.setLocationName(currentWeather.getName());
-        weatherMeDto.setTimeZone(currentWeather.getTimezone());
-        weatherMeDto.setDescription(currentWeather.getWeather()[0].getDescription());
-        weatherMeDto.setDescriptionIcon("http://openweathermap.org/img/w/" + currentWeather.getWeather()[0].getIcon() + ".png");
-        weatherMeDto.setRealTemprature(currentWeather.getMain().getTemp());
-        weatherMeDto.setFeelsTemprature(currentWeather.getMain().getFeels_like());
-        weatherMeDto.setMinTemprature(currentWeather.getMain().getTemp_min());
-        weatherMeDto.setMaxTemprature(currentWeather.getMain().getTemp_max());
-        weatherMeDto.setPressure(currentWeather.getMain().getPressure());
-        weatherMeDto.setHumidity(currentWeather.getMain().getHumidity());
-        weatherMeDto.setCountryCode(currentWeather.getSys().getCountry());
-        weatherMeDto.setSunRise(currentWeather.getSys().getSunrise());
-        weatherMeDto.setSunSet(currentWeather.getSys().getSunset());
-
-        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        long unixTime;
-        String formattedDtm;
-
-        unixTime = Long.valueOf(weatherMeDto.getSunRise()) + Long.valueOf(weatherMeDto.getTimeZone());
-        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-        weatherMeDto.setSunRise(formattedDtm);
-
-        unixTime = Long.valueOf(weatherMeDto.getSunSet()) + Long.valueOf(weatherMeDto.getTimeZone());
-        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-        weatherMeDto.setSunSet(formattedDtm);
-
-        unixTime = Long.valueOf(weatherMeDto.getTimeZone());
-        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-        weatherMeDto.setTimeZone(formattedDtm);*/
-
-        return weatherMeDto;
+        weatherNearFuture = new WeatherNearFuture();
+        weatherNearFuture.setTemp(forecastWeather.getList()[0].getMain().getTemp());
+        weatherNearFuture.setDescription(forecastWeather.getList()[0].getWeather()[0].getDescription());
+        weatherNearFuture.setDtTxt(forecastWeather.getList()[0].getDt_txt());
+        weatherNearFutures.add(weatherNearFuture);
+        
+        weatherNearFuture = new WeatherNearFuture();
+        weatherNearFuture.setTemp(forecastWeather.getList()[1].getMain().getTemp());
+        weatherNearFuture.setDescription(forecastWeather.getList()[1].getWeather()[0].getDescription());
+        weatherNearFuture.setDtTxt(forecastWeather.getList()[1].getDt_txt());
+        weatherNearFutures.add(weatherNearFuture);
+        
+        weatherNearFuture = new WeatherNearFuture();
+        weatherNearFuture.setTemp(forecastWeather.getList()[2].getMain().getTemp());
+        weatherNearFuture.setDescription(forecastWeather.getList()[2].getWeather()[0].getDescription());
+        weatherNearFuture.setDtTxt(forecastWeather.getList()[2].getDt_txt());
+        weatherNearFutures.add(weatherNearFuture);
+        
+        weatherNearFuture = new WeatherNearFuture();
+        weatherNearFuture.setTemp(forecastWeather.getList()[3].getMain().getTemp());
+        weatherNearFuture.setDescription(forecastWeather.getList()[3].getWeather()[0].getDescription());
+        weatherNearFuture.setDtTxt(forecastWeather.getList()[3].getDt_txt());
+        weatherNearFutures.add(weatherNearFuture);
+        
+        weatherNearFuture = new WeatherNearFuture();
+        weatherNearFuture.setTemp(forecastWeather.getList()[4].getMain().getTemp());
+        weatherNearFuture.setDescription(forecastWeather.getList()[4].getWeather()[0].getDescription());
+        weatherNearFuture.setDtTxt(forecastWeather.getList()[4].getDt_txt());
+        weatherNearFutures.add(weatherNearFuture);
+        
+        weatherNearFuture = new WeatherNearFuture();
+        weatherNearFuture.setTemp(forecastWeather.getList()[5].getMain().getTemp());
+        weatherNearFuture.setDescription(forecastWeather.getList()[5].getWeather()[0].getDescription());
+        weatherNearFuture.setDtTxt(forecastWeather.getList()[5].getDt_txt());
+        weatherNearFutures.add(weatherNearFuture);
+        
+        weatherNearFuture = new WeatherNearFuture();
+        weatherNearFuture.setTemp(forecastWeather.getList()[6].getMain().getTemp());
+        weatherNearFuture.setDescription(forecastWeather.getList()[6].getWeather()[0].getDescription());
+        weatherNearFuture.setDtTxt(forecastWeather.getList()[6].getDt_txt());
+        weatherNearFutures.add(weatherNearFuture);
+        
+        weatherNearFuture = new WeatherNearFuture();
+        weatherNearFuture.setTemp(forecastWeather.getList()[7].getMain().getTemp());
+        weatherNearFuture.setDescription(forecastWeather.getList()[7].getWeather()[0].getDescription());
+        weatherNearFuture.setDtTxt(forecastWeather.getList()[7].getDt_txt());
+        weatherNearFutures.add(weatherNearFuture);
+        
+        return weatherNearFutures;
     }
 
     private String callCurrentWeatherApi(WeatherMeDto var1) {
@@ -425,7 +456,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String appId = weatherMeConfigurationProperties.getApiAppid();
         String currentWeatherSuffix = weatherMeConfigurationProperties.getApiSuffixForCurrentWeather();
 
-        requestUrl = apiUrl + currentWeatherSuffix +
+        weatherRequestUrl = apiUrl + currentWeatherSuffix +
                 "q=" + var1.getLocationName() +
                 "&lang=" + var1.getLanguage() +
                 "&units=" + var1.getUnits() +
@@ -434,7 +465,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String response = "";
         try {
             logger.info("calling CurrentWeather API !!");
-            response = restTemplate.getForObject(requestUrl, String.class);
+            response = restTemplate.getForObject(weatherRequestUrl, String.class);
             logger.info("returned response from CurrentWeather API !!");
         } catch (HttpClientErrorException e) {
             new HttpExceptionDispatcher().dispatchToException(e);
@@ -452,7 +483,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String appId = weatherMeConfigurationProperties.getApiAppid();
         String forecastWeatherSuffix = weatherMeConfigurationProperties.getApiSuffixForForecastWeather();
 
-        requestUrl = apiUrl + forecastWeatherSuffix +
+        forecastRequestUrl = apiUrl + forecastWeatherSuffix +
                 "q=" + var1.getLocationName() +
                 "&lang=" + var1.getLanguage() +
                 "&units=" + var1.getUnits() +
@@ -462,7 +493,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String response = "";
         try {
             logger.info("calling ForecastWeather API !!");
-            response = restTemplate.getForObject(requestUrl, String.class);
+            response = restTemplate.getForObject(forecastRequestUrl, String.class);
             logger.info("returned response from ForecastWeather API !!");
         } catch (HttpClientErrorException e) {
             new HttpExceptionDispatcher().dispatchToException(e);
@@ -497,9 +528,11 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             weatherHistory.setWeatherHistoryId(weatherHistoryId);
             weatherHistory.setCreateTime(savedWeather.getCreateTime());
             weatherHistory.setLocationName(savedWeather.getLocationName());
-            weatherHistory.setRequestUrl(savedWeather.getRequestUrl());
+            weatherHistory.setWeatherRequest(savedWeather.getWeatherRequest());
+            weatherHistory.setWeatherResponse(savedWeather.getWeatherResponse());
+            weatherHistory.setForecastRequest(savedWeather.getForecastRequest());
+            weatherHistory.setForecastResponse(savedWeather.getForecastResponse());
             weatherHistory.setUpdateTime(savedWeather.getUpdateTime());
-            weatherHistory.setWeatherJson(savedWeather.getWeatherJson());
             weatherHistory.setApiCalledFlag(savedWeather.getApiCalledFlag());
 
             weatherHistoryData.create(weatherHistory);
