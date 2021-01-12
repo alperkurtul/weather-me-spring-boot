@@ -6,7 +6,6 @@ public class CurrentWeather {
     private WeatherInfo[] weather;
     private String base;
     private MainInfo main;
-    private String visibility;
     private WindInfo wind;
     private CloudsInfo clouds;
     private RainInfo rain;
@@ -17,6 +16,7 @@ public class CurrentWeather {
     private String id;
     private String name;
     private String cod;
+    private String visibility;
 
     public CoordinateInfo getCoord() {
         return coord;
