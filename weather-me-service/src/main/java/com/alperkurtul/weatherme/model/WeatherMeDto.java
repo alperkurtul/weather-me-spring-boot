@@ -22,9 +22,18 @@ public class WeatherMeDto {
     private String locationId;
     private String locationName;
     private ArrayList<WeatherNearFuture> nearFuture;
+    private ArrayList<WeatherNextDay> nextDays;
 
     public String getLanguage() {
         return language;
+    }
+
+    public ArrayList<WeatherNextDay> getNextDays() {
+        return nextDays;
+    }
+
+    public void setNextDays(ArrayList<WeatherNextDay> nextDays) {
+        this.nextDays = nextDays;
     }
 
     public ArrayList<WeatherNearFuture> getNearFuture() {

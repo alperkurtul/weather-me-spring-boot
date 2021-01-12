@@ -19,9 +19,18 @@ public class CurrentWeatherResponse {
     private String locationId;
     private String locationName;
     private ArrayList<WeatherNearFuture> nearFuture;
+    private ArrayList<WeatherNextDayResponse> nextDays;
 
     public String getDescription() {
         return description;
+    }
+
+    public ArrayList<WeatherNextDayResponse> getNextDays() {
+        return nextDays;
+    }
+
+    public void setNextDays(ArrayList<WeatherNextDayResponse> nextDays) {
+        this.nextDays = nextDays;
     }
 
     public ArrayList<WeatherNearFuture> getNearFuture() {

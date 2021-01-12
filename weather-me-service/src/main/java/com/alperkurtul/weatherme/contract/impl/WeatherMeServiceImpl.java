@@ -11,6 +11,7 @@ import com.alperkurtul.weatherme.error.exception.MandatoryInputMissingExceptionN
 import com.alperkurtul.weatherme.error.handling.HttpExceptionDispatcher;
 import com.alperkurtul.weatherme.json.currentweather.CurrentWeather;
 import com.alperkurtul.weatherme.json.location.WeatherLocation;
+import com.alperkurtul.weatherme.json.threehourforecastfivedays.ForecastInfo;
 import com.alperkurtul.weatherme.json.threehourforecastfivedays.ThreeHourForecastFiveDays;
 import com.alperkurtul.weatherme.mapper.ServiceMapper;
 import com.alperkurtul.weatherme.model.*;
@@ -23,6 +24,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -168,6 +171,10 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         // Parse forecast info JSON data
         ArrayList<WeatherNearFuture> weatherNearFutures = parseForecastWeatherJson(forecastResponse);
         weatherMeDtoOut.setNearFuture(weatherNearFutures);
+
+        // Parse forecast info JSON data for Next Days
+        ArrayList<WeatherNextDay> weatherNextDays = parseForecastWeatherJsonForNextDays(forecastResponse);
+        weatherMeDtoOut.setNextDays(weatherNextDays);
 
         // check if we have to create or update record to DB
         String createOrUpdateDbMain = "";
@@ -446,6 +453,117 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         weatherNearFutures.add(weatherNearFuture);
         
         return weatherNearFutures;
+    }
+
+    private ArrayList<WeatherNextDay> parseForecastWeatherJsonForNextDays(String forecastWeatherJson) throws Exception {
+
+        logger.info("'WeatherMeServiceImpl.parseForecastWeatherJsonForNextDays' running...");
+
+        ArrayList<WeatherNextDay> weatherNextDays = new ArrayList<>();
+        WeatherNextDay weatherNextDay;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        ThreeHourForecastFiveDays forecastWeather = objectMapper.readValue(forecastWeatherJson, ThreeHourForecastFiveDays.class);
+
+        BigDecimal tempMin = BigDecimal.valueOf(1000);
+        BigDecimal tempMax = BigDecimal.valueOf(-1000);
+        BigDecimal temp = BigDecimal.valueOf(0);
+        BigDecimal tempTotal = BigDecimal.valueOf(0);
+        long tempCount = 0;
+        String prevDate = "";
+        String prevDtTxt = "";
+        String prevDescription = "";
+        String currentDate = forecastWeather.getList()[0].getDt_txt().substring(0,10);
+        logger.info("currentDate: " + currentDate);
+
+        Boolean nextDays = false;
+        ForecastInfo[] forecastInfos = forecastWeather.getList();
+        for(ForecastInfo forecastInfo : forecastInfos) {
+            if (!nextDays) {
+                if (!forecastInfo.getDt_txt().substring(0,10).equals(currentDate)) {
+                    logger.info("currentDate : " + currentDate);
+                    logger.info("tempCount : " + tempCount);
+
+                    nextDays = true;
+                    prevDate = forecastInfo.getDt_txt().substring(0,10);
+                    prevDtTxt = forecastInfo.getDt_txt();
+                    prevDescription = forecastInfo.getWeather()[0].getDescription();
+                    tempCount = 0;
+                } else
+                    tempCount++;
+            } 
+            
+            if (nextDays) {
+
+                if (forecastInfo.getDt_txt().substring(0,10).equals(prevDate)) {
+
+                    if ( BigDecimal.valueOf( Double.parseDouble(forecastInfo.getMain().getTemp_min()) ).compareTo(tempMin)  == -1 ) {
+                        tempMin = BigDecimal.valueOf( Double.parseDouble(forecastInfo.getMain().getTemp_min()) );
+                    }
+
+                    if ( BigDecimal.valueOf( Double.parseDouble(forecastInfo.getMain().getTemp_max()) ).compareTo(tempMax)  == 1 ) {
+                        tempMax = BigDecimal.valueOf( Double.parseDouble(forecastInfo.getMain().getTemp_max()) );
+                    }
+
+                    temp = BigDecimal.valueOf( Double.parseDouble(forecastInfo.getMain().getTemp()) );
+                    tempTotal = tempTotal.add(temp);
+
+                    tempCount++;
+                    
+                } else {
+                    logger.info("Date : " + prevDtTxt);
+                    logger.info("tempCount : " + tempCount);
+
+                    weatherNextDay = new WeatherNextDay();
+                    weatherNextDay.setTemp( tempTotal.divide(BigDecimal.valueOf(tempCount),2,RoundingMode.HALF_DOWN).toString() );
+                    weatherNextDay.setTempMin(tempMin.toString());
+                    weatherNextDay.setTempMax(tempMax.toString());
+                    weatherNextDay.setDescription(prevDescription);
+                    weatherNextDay.setDtTxt(prevDtTxt);
+                    weatherNextDays.add(weatherNextDay);
+                    
+                    tempMin = BigDecimal.valueOf(1000);
+                    tempMax = BigDecimal.valueOf(-1000);
+                    prevDate = forecastInfo.getDt_txt().substring(0,10);
+                    prevDtTxt = forecastInfo.getDt_txt();
+                    prevDescription = forecastInfo.getWeather()[0].getDescription();
+                    tempTotal = BigDecimal.valueOf(0);
+                    tempCount = 0;
+                
+                    if ( BigDecimal.valueOf( Double.parseDouble(forecastInfo.getMain().getTemp_min()) ).compareTo(tempMin)  == -1 ) {
+                        tempMin = BigDecimal.valueOf( Double.parseDouble(forecastInfo.getMain().getTemp_min()) );
+                    }
+
+                    if ( BigDecimal.valueOf( Double.parseDouble(forecastInfo.getMain().getTemp_max()) ).compareTo(tempMax)  == 1 ) {
+                        tempMax = BigDecimal.valueOf( Double.parseDouble(forecastInfo.getMain().getTemp_max()) );
+                    }
+
+                    temp = BigDecimal.valueOf( Double.parseDouble(forecastInfo.getMain().getTemp()) );
+                    tempTotal = tempTotal.add(temp);
+
+                    tempCount++;
+
+                }
+
+            }
+        }
+        
+
+        logger.info("Date : " + prevDtTxt);
+        logger.info("tempCount : " + tempCount);
+
+        weatherNextDay = new WeatherNextDay();
+        weatherNextDay.setTemp( tempTotal.divide(BigDecimal.valueOf(tempCount),2,RoundingMode.HALF_DOWN).toString() );
+        weatherNextDay.setTempMin(tempMin.toString());
+        weatherNextDay.setTempMax(tempMax.toString());
+        weatherNextDay.setDescription(prevDescription);
+        weatherNextDay.setDtTxt(prevDtTxt);
+        weatherNextDays.add(weatherNextDay);
+
+
+
+        return weatherNextDays;
     }
 
     private String callCurrentWeatherApi(WeatherMeDto var1) {
