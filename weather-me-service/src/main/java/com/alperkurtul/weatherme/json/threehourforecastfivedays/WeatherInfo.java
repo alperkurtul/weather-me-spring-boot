@@ -1,6 +1,6 @@
 package com.alperkurtul.weatherme.json.threehourforecastfivedays;
 
-public class WeatherConditionInfo {
+public class WeatherInfo {
 
     private String id;
     private String main;
@@ -38,5 +38,5 @@ public class WeatherConditionInfo {
     public void setId(String id) {
         this.id = id;
     }
-    
+
 }

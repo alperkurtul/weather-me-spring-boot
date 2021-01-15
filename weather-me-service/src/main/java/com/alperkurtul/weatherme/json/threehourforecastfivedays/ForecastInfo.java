@@ -3,8 +3,8 @@ package com.alperkurtul.weatherme.json.threehourforecastfivedays;
 public class ForecastInfo {
 
     private String dt;
-    private WeatherValuesInfo main;
-    private WeatherConditionInfo[] weather;
+    private MainInfo main;
+    private WeatherInfo[] weather;
     private CloudsInfo clouds;
     private WindInfo wind;
     private String visibility;
@@ -82,24 +82,24 @@ public class ForecastInfo {
         this.clouds = clouds;
     }
 
-    public WeatherConditionInfo[] getWeather() {
+    public WeatherInfo[] getWeather() {
         return weather;
     }
 
-    public void setWeather(WeatherConditionInfo[] weather) {
+    public void setWeather(WeatherInfo[] weather) {
         this.weather = weather;
     }
 
-    public WeatherValuesInfo getMain() {
+    public MainInfo getMain() {
         return main;
     }
 
-    public void setMain(WeatherValuesInfo main) {
+    public void setMain(MainInfo main) {
         this.main = main;
     }
 
     public void setDt(String dt) {
         this.dt = dt;
     }
-    
+
 }

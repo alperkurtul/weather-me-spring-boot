@@ -385,13 +385,14 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         weatherMeDto.setLocationId(currentWeather.getId());
         weatherMeDto.setLocationName(currentWeather.getName());
         weatherMeDto.setTimeZone(currentWeather.getTimezone());
+        weatherMeDto.setId(currentWeather.getWeather()[0].getId());
+        weatherMeDto.setMain(currentWeather.getWeather()[0].getMain());
         weatherMeDto.setDescription(currentWeather.getWeather()[0].getDescription());
-        weatherMeDto.setDescriptionIcon(
-                "http://openweathermap.org/img/w/" + currentWeather.getWeather()[0].getIcon() + ".png");
-        weatherMeDto.setRealTemprature(currentWeather.getMain().getTemp());
-        weatherMeDto.setFeelsTemprature(currentWeather.getMain().getFeels_like());
-        weatherMeDto.setMinTemprature(currentWeather.getMain().getTemp_min());
-        weatherMeDto.setMaxTemprature(currentWeather.getMain().getTemp_max());
+        weatherMeDto.setIcon("http://openweathermap.org/img/w/" + currentWeather.getWeather()[0].getIcon() + ".png");
+        weatherMeDto.setRealTemperature(currentWeather.getMain().getTemp());
+        weatherMeDto.setFeelsTemperature(currentWeather.getMain().getFeels_like());
+        weatherMeDto.setMinTemperature(currentWeather.getMain().getTemp_min());
+        weatherMeDto.setMaxTemperature(currentWeather.getMain().getTemp_max());
         weatherMeDto.setPressure(currentWeather.getMain().getPressure());
         weatherMeDto.setHumidity(currentWeather.getMain().getHumidity());
         weatherMeDto.setCountryCode(currentWeather.getSys().getCountry());
@@ -429,53 +430,21 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         ThreeHourForecastFiveDays forecastWeather = objectMapper.readValue(forecastWeatherJson,
                 ThreeHourForecastFiveDays.class);
 
-        weatherNearFuture = new WeatherNearFuture();
-        weatherNearFuture.setTemp(forecastWeather.getList()[0].getMain().getTemp());
-        weatherNearFuture.setDescription(forecastWeather.getList()[0].getWeather()[0].getDescription());
-        weatherNearFuture.setDtTxt(forecastWeather.getList()[0].getDt_txt());
-        weatherNearFutures.add(weatherNearFuture);
+        for (int i = 0; i <= 7; i++) {
 
-        weatherNearFuture = new WeatherNearFuture();
-        weatherNearFuture.setTemp(forecastWeather.getList()[1].getMain().getTemp());
-        weatherNearFuture.setDescription(forecastWeather.getList()[1].getWeather()[0].getDescription());
-        weatherNearFuture.setDtTxt(forecastWeather.getList()[1].getDt_txt());
-        weatherNearFutures.add(weatherNearFuture);
+            weatherNearFuture = new WeatherNearFuture();
 
-        weatherNearFuture = new WeatherNearFuture();
-        weatherNearFuture.setTemp(forecastWeather.getList()[2].getMain().getTemp());
-        weatherNearFuture.setDescription(forecastWeather.getList()[2].getWeather()[0].getDescription());
-        weatherNearFuture.setDtTxt(forecastWeather.getList()[2].getDt_txt());
-        weatherNearFutures.add(weatherNearFuture);
+            weatherNearFuture.setId(forecastWeather.getList()[i].getWeather()[0].getId());
+            weatherNearFuture.setMain(forecastWeather.getList()[i].getWeather()[0].getMain());
+            weatherNearFuture.setDescription(forecastWeather.getList()[i].getWeather()[0].getDescription());
+            weatherNearFuture.setIcon("http://openweathermap.org/img/w/"
+                    + forecastWeather.getList()[i].getWeather()[0].getIcon() + ".png");
+            weatherNearFuture.setTemp(forecastWeather.getList()[i].getMain().getTemp());
+            weatherNearFuture.setDtTxt(forecastWeather.getList()[i].getDt_txt());
 
-        weatherNearFuture = new WeatherNearFuture();
-        weatherNearFuture.setTemp(forecastWeather.getList()[3].getMain().getTemp());
-        weatherNearFuture.setDescription(forecastWeather.getList()[3].getWeather()[0].getDescription());
-        weatherNearFuture.setDtTxt(forecastWeather.getList()[3].getDt_txt());
-        weatherNearFutures.add(weatherNearFuture);
+            weatherNearFutures.add(weatherNearFuture);
 
-        weatherNearFuture = new WeatherNearFuture();
-        weatherNearFuture.setTemp(forecastWeather.getList()[4].getMain().getTemp());
-        weatherNearFuture.setDescription(forecastWeather.getList()[4].getWeather()[0].getDescription());
-        weatherNearFuture.setDtTxt(forecastWeather.getList()[4].getDt_txt());
-        weatherNearFutures.add(weatherNearFuture);
-
-        weatherNearFuture = new WeatherNearFuture();
-        weatherNearFuture.setTemp(forecastWeather.getList()[5].getMain().getTemp());
-        weatherNearFuture.setDescription(forecastWeather.getList()[5].getWeather()[0].getDescription());
-        weatherNearFuture.setDtTxt(forecastWeather.getList()[5].getDt_txt());
-        weatherNearFutures.add(weatherNearFuture);
-
-        weatherNearFuture = new WeatherNearFuture();
-        weatherNearFuture.setTemp(forecastWeather.getList()[6].getMain().getTemp());
-        weatherNearFuture.setDescription(forecastWeather.getList()[6].getWeather()[0].getDescription());
-        weatherNearFuture.setDtTxt(forecastWeather.getList()[6].getDt_txt());
-        weatherNearFutures.add(weatherNearFuture);
-
-        weatherNearFuture = new WeatherNearFuture();
-        weatherNearFuture.setTemp(forecastWeather.getList()[7].getMain().getTemp());
-        weatherNearFuture.setDescription(forecastWeather.getList()[7].getWeather()[0].getDescription());
-        weatherNearFuture.setDtTxt(forecastWeather.getList()[7].getDt_txt());
-        weatherNearFutures.add(weatherNearFuture);
+        }
 
         return weatherNearFutures;
     }
@@ -492,110 +461,119 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         ThreeHourForecastFiveDays forecastWeather = objectMapper.readValue(forecastWeatherJson,
                 ThreeHourForecastFiveDays.class);
 
-        BigDecimal tempMin = BigDecimal.valueOf(1000);
-        BigDecimal tempMax = BigDecimal.valueOf(-1000);
-        BigDecimal temp = BigDecimal.valueOf(0);
-        BigDecimal tempTotal = BigDecimal.valueOf(0);
-        long tempCount = 0;
+        BigDecimal temperatureMin = BigDecimal.valueOf(1000);
+        BigDecimal temperatureMax = BigDecimal.valueOf(-1000);
+        BigDecimal temperatureTotal = BigDecimal.valueOf(0);
+
+        long temperatureCount = 0;
+        ForecastInfo prevForecastInfo = null;
         String prevDate = "";
-        String prevDtTxt = "";
-        String prevDescription = "";
+
         String currentDate = forecastWeather.getList()[0].getDt_txt().substring(0, 10);
         logger.info("currentDate: " + currentDate);
 
-        int addCount = 0;
-        Boolean nextDays = false;
+        int addedCountToArray = 0;
+        Boolean afterToday = false;
         ForecastInfo[] forecastInfos = forecastWeather.getList();
         for (ForecastInfo forecastInfo : forecastInfos) {
-            if (!nextDays) {
+            if (!afterToday) {
                 if (!forecastInfo.getDt_txt().substring(0, 10).equals(currentDate)) {
                     logger.info("currentDate : " + currentDate);
-                    logger.info("tempCount : " + tempCount);
+                    logger.info("temperatureCount : " + temperatureCount);
 
-                    nextDays = true;
+                    temperatureCount = 0;
+                    prevForecastInfo = forecastInfo;
                     prevDate = forecastInfo.getDt_txt().substring(0, 10);
-                    prevDtTxt = forecastInfo.getDt_txt();
-                    prevDescription = forecastInfo.getWeather()[0].getDescription();
-                    tempCount = 0;
-                } else
-                    tempCount++;
+                    afterToday = true;
+                } else {
+                    temperatureCount++;
+                }
             }
 
-            if (nextDays) {
+            if (afterToday) {
 
                 if (forecastInfo.getDt_txt().substring(0, 10).equals(prevDate)) {
 
                     if (BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_min()))
-                            .compareTo(tempMin) == -1) {
-                        tempMin = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_min()));
+                            .compareTo(temperatureMin) == -1) {
+                        temperatureMin = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_min()));
                     }
 
                     if (BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_max()))
-                            .compareTo(tempMax) == 1) {
-                        tempMax = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_max()));
+                            .compareTo(temperatureMax) == 1) {
+                        temperatureMax = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_max()));
                     }
 
-                    temp = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp()));
-                    tempTotal = tempTotal.add(temp);
+                    BigDecimal temperature = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp()));
+                    temperatureTotal = temperatureTotal.add(temperature);
 
-                    tempCount++;
+                    temperatureCount++;
 
                 } else {
-                    logger.info("Date : " + prevDtTxt);
-                    logger.info("tempCount : " + tempCount);
+                    logger.info("Date : " + prevForecastInfo.getDt_txt());
+                    logger.info("temperatureCountCount : " + temperatureCount);
 
                     weatherNextDay = new WeatherNextDay();
-                    weatherNextDay.setTemp(
-                            tempTotal.divide(BigDecimal.valueOf(tempCount), 2, RoundingMode.HALF_DOWN).toString());
-                    weatherNextDay.setTempMin(tempMin.toString());
-                    weatherNextDay.setTempMax(tempMax.toString());
-                    weatherNextDay.setDescription(prevDescription);
-                    weatherNextDay.setDtTxt(prevDtTxt);
-                    if (addCount < 4) {
+                    weatherNextDay.setId(prevForecastInfo.getWeather()[0].getId());
+                    weatherNextDay.setMain(prevForecastInfo.getWeather()[0].getMain());
+                    weatherNextDay.setDescription(prevForecastInfo.getWeather()[0].getDescription());
+                    weatherNextDay.setIcon(
+                            "http://openweathermap.org/img/w/" + prevForecastInfo.getWeather()[0].getIcon() + ".png");
+                    weatherNextDay.setTemp(temperatureTotal
+                            .divide(BigDecimal.valueOf(temperatureCount), 2, RoundingMode.HALF_DOWN).toString());
+                    weatherNextDay.setTempMin(temperatureMin.toString());
+                    weatherNextDay.setTempMax(temperatureMax.toString());
+                    weatherNextDay.setDtTxt(prevForecastInfo.getDt_txt());
+                    if (addedCountToArray < 4) {
                         weatherNextDays.add(weatherNextDay);
-                        addCount++;
+                        addedCountToArray++;
                     }
 
-                    tempMin = BigDecimal.valueOf(1000);
-                    tempMax = BigDecimal.valueOf(-1000);
+                    temperatureMin = BigDecimal.valueOf(1000);
+                    temperatureMax = BigDecimal.valueOf(-1000);
+                    temperatureTotal = BigDecimal.valueOf(0);
+
+                    temperatureCount = 0;
+                    prevForecastInfo = forecastInfo;
                     prevDate = forecastInfo.getDt_txt().substring(0, 10);
-                    prevDtTxt = forecastInfo.getDt_txt();
-                    prevDescription = forecastInfo.getWeather()[0].getDescription();
-                    tempTotal = BigDecimal.valueOf(0);
-                    tempCount = 0;
 
                     if (BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_min()))
-                            .compareTo(tempMin) == -1) {
-                        tempMin = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_min()));
+                            .compareTo(temperatureMin) == -1) {
+                        temperatureMin = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_min()));
                     }
 
                     if (BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_max()))
-                            .compareTo(tempMax) == 1) {
-                        tempMax = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_max()));
+                            .compareTo(temperatureMax) == 1) {
+                        temperatureMax = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_max()));
                     }
 
-                    temp = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp()));
-                    tempTotal = tempTotal.add(temp);
+                    BigDecimal temperature = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp()));
+                    temperatureTotal = temperatureTotal.add(temperature);
 
-                    tempCount++;
+                    temperatureCount++;
 
                 }
 
             }
         }
 
-        logger.info("Date : " + prevDtTxt);
-        logger.info("tempCount : " + tempCount);
+        logger.info("Date : " + prevForecastInfo.getDt_txt());
+        logger.info("temperatureCount : " + temperatureCount);
 
         weatherNextDay = new WeatherNextDay();
-        weatherNextDay.setTemp(tempTotal.divide(BigDecimal.valueOf(tempCount), 2, RoundingMode.HALF_DOWN).toString());
-        weatherNextDay.setTempMin(tempMin.toString());
-        weatherNextDay.setTempMax(tempMax.toString());
-        weatherNextDay.setDescription(prevDescription);
-        weatherNextDay.setDtTxt(prevDtTxt);
-        if (addCount < 4) {
+        weatherNextDay.setId(prevForecastInfo.getWeather()[0].getId());
+        weatherNextDay.setMain(prevForecastInfo.getWeather()[0].getMain());
+        weatherNextDay.setDescription(prevForecastInfo.getWeather()[0].getDescription());
+        weatherNextDay
+                .setIcon("http://openweathermap.org/img/w/" + prevForecastInfo.getWeather()[0].getIcon() + ".png");
+        weatherNextDay.setTemp(
+                temperatureTotal.divide(BigDecimal.valueOf(temperatureCount), 2, RoundingMode.HALF_DOWN).toString());
+        weatherNextDay.setTempMin(temperatureMin.toString());
+        weatherNextDay.setTempMax(temperatureMax.toString());
+        weatherNextDay.setDtTxt(prevForecastInfo.getDt_txt());
+        if (addedCountToArray < 4) {
             weatherNextDays.add(weatherNextDay);
-            addCount++;
+            addedCountToArray++;
         }
 
         return weatherNextDays;

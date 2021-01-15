@@ -1,6 +1,6 @@
 package com.alperkurtul.weatherme.json.threehourforecastfivedays;
 
-public class WeatherValuesInfo {
+public class MainInfo {
 
     private String temp;
     private String feels_like;
@@ -83,5 +83,5 @@ public class WeatherValuesInfo {
     public void setTemp(String temp) {
         this.temp = temp;
     }
-    
+
 }

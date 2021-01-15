@@ -2,14 +2,41 @@ package com.alperkurtul.weatherme.model;
 
 public class WeatherNextDayResponse {
 
+    private String id;
+    private String main;
+    private String description;
+    private String icon;
     private String temp;
     private String tempMin;
     private String tempMax;
-    private String description;
     private String dtTxt;
 
     public String getTemp() {
         return temp;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public String getMain() {
+        return main;
+    }
+
+    public void setMain(String main) {
+        this.main = main;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public void setTemp(String temp) {

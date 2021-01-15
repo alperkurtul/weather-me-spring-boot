@@ -4,12 +4,14 @@ import java.util.ArrayList;
 
 public class CurrentWeatherResponse {
 
+    private String id;
+    private String main;
     private String description;
-    private String descriptionIcon;
-    private String realTemprature;
-    private String feelsTemprature;
-    private String minTemprature;
-    private String maxTemprature;
+    private String icon;
+    private String realTemperature;
+    private String feelsTemperature;
+    private String minTemperature;
+    private String maxTemperature;
     private String pressure;
     private String humidity;
     private String countryCode;
@@ -23,6 +25,22 @@ public class CurrentWeatherResponse {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getMain() {
+        return main;
+    }
+
+    public void setMain(String main) {
+        this.main = main;
     }
 
     public ArrayList<WeatherNextDayResponse> getNextDays() {
@@ -45,44 +63,44 @@ public class CurrentWeatherResponse {
         this.description = description;
     }
 
-    public String getDescriptionIcon() {
-        return descriptionIcon;
+    public String getIcon() {
+        return icon;
     }
 
-    public void setDescriptionIcon(String descriptionIcon) {
-        this.descriptionIcon = descriptionIcon;
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 
-    public String getRealTemprature() {
-        return realTemprature;
+    public String getRealTemperature() {
+        return realTemperature;
     }
 
-    public void setRealTemprature(String realTemprature) {
-        this.realTemprature = realTemprature;
+    public void setRealTemperature(String realTemperature) {
+        this.realTemperature = realTemperature;
     }
 
-    public String getFeelsTemprature() {
-        return feelsTemprature;
+    public String getFeelsTemperature() {
+        return feelsTemperature;
     }
 
-    public void setFeelsTemprature(String feelsTemprature) {
-        this.feelsTemprature = feelsTemprature;
+    public void setFeelsTemperature(String feelsTemperature) {
+        this.feelsTemperature = feelsTemperature;
     }
 
-    public String getMinTemprature() {
-        return minTemprature;
+    public String getMinTemperature() {
+        return minTemperature;
     }
 
-    public void setMinTemprature(String minTemprature) {
-        this.minTemprature = minTemprature;
+    public void setMinTemperature(String minTemperature) {
+        this.minTemperature = minTemperature;
     }
 
-    public String getMaxTemprature() {
-        return maxTemprature;
+    public String getMaxTemperature() {
+        return maxTemperature;
     }
 
-    public void setMaxTemprature(String maxTemprature) {
-        this.maxTemprature = maxTemprature;
+    public void setMaxTemperature(String maxTemperature) {
+        this.maxTemperature = maxTemperature;
     }
 
     public String getPressure() {
