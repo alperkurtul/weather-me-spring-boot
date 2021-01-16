@@ -388,7 +388,12 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         weatherMeDto.setId(currentWeather.getWeather()[0].getId());
         weatherMeDto.setMain(currentWeather.getWeather()[0].getMain());
         weatherMeDto.setDescription(currentWeather.getWeather()[0].getDescription());
-        weatherMeDto.setIcon("http://openweathermap.org/img/w/" + currentWeather.getWeather()[0].getIcon() + ".png");
+        // weatherMeDto.setIcon("http://openweathermap.org/img/wn/" +
+        // currentWeather.getWeather()[0].getIcon() + "@2x.png");
+        weatherMeDto
+                .setIcon("http://openweathermap.org/img/wn/" + currentWeather.getWeather()[0].getIcon() + "@4x.png");
+        // weatherMeDto.setIcon("http://openweathermap.org/img/w/" +
+        // currentWeather.getWeather()[0].getIcon() + ".png");
         weatherMeDto.setRealTemperature(currentWeather.getMain().getTemp());
         weatherMeDto.setFeelsTemperature(currentWeather.getMain().getFeels_like());
         weatherMeDto.setMinTemperature(currentWeather.getMain().getTemp_min());
@@ -437,8 +442,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             weatherNearFuture.setId(forecastWeather.getList()[i].getWeather()[0].getId());
             weatherNearFuture.setMain(forecastWeather.getList()[i].getWeather()[0].getMain());
             weatherNearFuture.setDescription(forecastWeather.getList()[i].getWeather()[0].getDescription());
-            weatherNearFuture.setIcon("http://openweathermap.org/img/w/"
-                    + forecastWeather.getList()[i].getWeather()[0].getIcon() + ".png");
+            weatherNearFuture.setIcon("http://openweathermap.org/img/wn/"
+                    + forecastWeather.getList()[i].getWeather()[0].getIcon() + "@4x.png");
             weatherNearFuture.setTemp(forecastWeather.getList()[i].getMain().getTemp());
             weatherNearFuture.setDtTxt(forecastWeather.getList()[i].getDt_txt());
 
@@ -517,8 +522,12 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                     weatherNextDay.setId(prevForecastInfo.getWeather()[0].getId());
                     weatherNextDay.setMain(prevForecastInfo.getWeather()[0].getMain());
                     weatherNextDay.setDescription(prevForecastInfo.getWeather()[0].getDescription());
-                    weatherNextDay.setIcon(
-                            "http://openweathermap.org/img/w/" + prevForecastInfo.getWeather()[0].getIcon() + ".png");
+                    weatherNextDay
+                            .setIcon(
+                                    "http://openweathermap.org/img/wn/"
+                                            + prevForecastInfo.getWeather()[0].getIcon().substring(0,
+                                                    prevForecastInfo.getWeather()[0].getIcon().length() - 1)
+                                            + "d@4x.png");
                     weatherNextDay.setTemp(temperatureTotal
                             .divide(BigDecimal.valueOf(temperatureCount), 2, RoundingMode.HALF_DOWN).toString());
                     weatherNextDay.setTempMin(temperatureMin.toString());
@@ -564,8 +573,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         weatherNextDay.setId(prevForecastInfo.getWeather()[0].getId());
         weatherNextDay.setMain(prevForecastInfo.getWeather()[0].getMain());
         weatherNextDay.setDescription(prevForecastInfo.getWeather()[0].getDescription());
-        weatherNextDay
-                .setIcon("http://openweathermap.org/img/w/" + prevForecastInfo.getWeather()[0].getIcon() + ".png");
+        weatherNextDay.setIcon("http://openweathermap.org/img/wn/" + prevForecastInfo.getWeather()[0].getIcon()
+                .substring(0, prevForecastInfo.getWeather()[0].getIcon().length() - 1) + "d@4x.png");
         weatherNextDay.setTemp(
                 temperatureTotal.divide(BigDecimal.valueOf(temperatureCount), 2, RoundingMode.HALF_DOWN).toString());
         weatherNextDay.setTempMin(temperatureMin.toString());
