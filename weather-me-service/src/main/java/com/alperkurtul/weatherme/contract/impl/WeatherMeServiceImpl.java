@@ -114,10 +114,10 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             logger.info("weatherMeConfigurationProperties.getApiCallValidityMinuteForWeather() : "
                     + weatherMeConfigurationProperties.getApiCallValidityMinuteForWeather());
             logger.info("weatherDataFromDb.getUpdateTime() : " + weatherDataFromDb.getUpdateTime());
+            // if ( true ) { // TODO : This line is for testing. Remove this line while
             if (weatherDataFromDb.getUpdateTime()
                     .plusMinutes(Integer.valueOf(weatherMeConfigurationProperties.getApiCallValidityMinuteForWeather()))
                     .isBefore(LocalDateTime.now())) {
-                // if ( true ) { // TODO : This line is for testing. Remove this line while
                 // deployment
                 // location's weather info in DB has expired
                 logger.info("location's weather info in DB has expired !!");
@@ -388,8 +388,6 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         weatherMeDto.setId(currentWeather.getWeather()[0].getId());
         weatherMeDto.setMain(currentWeather.getWeather()[0].getMain());
         weatherMeDto.setDescription(currentWeather.getWeather()[0].getDescription());
-        // weatherMeDto.setIcon("http://openweathermap.org/img/wn/" +
-        // currentWeather.getWeather()[0].getIcon() + "@2x.png");
         weatherMeDto
                 .setIcon("http://openweathermap.org/img/wn/" + currentWeather.getWeather()[0].getIcon() + "@4x.png");
         // weatherMeDto.setIcon("http://openweathermap.org/img/w/" +
@@ -469,120 +467,85 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         BigDecimal temperatureMin = BigDecimal.valueOf(1000);
         BigDecimal temperatureMax = BigDecimal.valueOf(-1000);
         BigDecimal temperatureTotal = BigDecimal.valueOf(0);
-
+        long idTotal = 0;
         long temperatureCount = 0;
-        ForecastInfo prevForecastInfo = null;
-        String prevDate = "";
 
-        String currentDate = forecastWeather.getList()[0].getDt_txt().substring(0, 10);
-        logger.info("currentDate: " + currentDate);
-
-        int addedCountToArray = 0;
-        Boolean afterToday = false;
         ForecastInfo[] forecastInfos = forecastWeather.getList();
-        for (ForecastInfo forecastInfo : forecastInfos) {
-            if (!afterToday) {
-                if (!forecastInfo.getDt_txt().substring(0, 10).equals(currentDate)) {
-                    logger.info("currentDate : " + currentDate);
-                    logger.info("temperatureCount : " + temperatureCount);
+        int len = forecastInfos.length;
+        logger.info("forecastInfos.length : " + len);
+        for (int i = 0; i < len; i++) {
 
-                    temperatureCount = 0;
-                    prevForecastInfo = forecastInfo;
-                    prevDate = forecastInfo.getDt_txt().substring(0, 10);
-                    afterToday = true;
-                } else {
-                    temperatureCount++;
-                }
+            // ***********************************************************************************
+
+            // logger.info("i : " + i);
+            // logger.info("Current Date: " + forecastInfos[i].getDt_txt().substring(0,
+            // 10));
+            // if (i < len - 1)
+            // logger.info("Next Date: " + forecastInfos[i + 1].getDt_txt().substring(0,
+            // 10));
+            // else
+            // logger.info("Next Date: " + "**BOŞ**");
+            // logger.info("id : " + forecastInfos[i].getWeather()[0].getId());
+            // logger.info("Temp : " + forecastInfos[i].getMain().getTemp());
+            // logger.info("Temp_min : " + forecastInfos[i].getMain().getTemp_min());
+            // logger.info("Temp_max : " + forecastInfos[i].getMain().getTemp_max());
+
+            // ***********************************************************************************
+
+            if (BigDecimal.valueOf(Double.parseDouble(forecastInfos[i].getMain().getTemp_min()))
+                    .compareTo(temperatureMin) == -1) {
+                temperatureMin = BigDecimal.valueOf(Double.parseDouble(forecastInfos[i].getMain().getTemp_min()));
             }
 
-            if (afterToday) {
+            if (BigDecimal.valueOf(Double.parseDouble(forecastInfos[i].getMain().getTemp_max()))
+                    .compareTo(temperatureMax) == 1) {
+                temperatureMax = BigDecimal.valueOf(Double.parseDouble(forecastInfos[i].getMain().getTemp_max()));
+            }
 
-                if (forecastInfo.getDt_txt().substring(0, 10).equals(prevDate)) {
+            temperatureTotal = temperatureTotal
+                    .add(BigDecimal.valueOf(Double.parseDouble(forecastInfos[i].getMain().getTemp())));
 
-                    if (BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_min()))
-                            .compareTo(temperatureMin) == -1) {
-                        temperatureMin = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_min()));
-                    }
+            idTotal = idTotal + Integer.parseInt(forecastInfos[i].getWeather()[0].getId());
 
-                    if (BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_max()))
-                            .compareTo(temperatureMax) == 1) {
-                        temperatureMax = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_max()));
-                    }
+            temperatureCount++;
 
-                    BigDecimal temperature = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp()));
-                    temperatureTotal = temperatureTotal.add(temperature);
+            if ((i == (len - 1)) || (!forecastInfos[i].getDt_txt().substring(0, 10)
+                    .equals(forecastInfos[i + 1].getDt_txt().substring(0, 10)))) {
 
-                    temperatureCount++;
+                logger.info("Date : " + forecastInfos[i].getDt_txt());
+                logger.info("temperatureCount : " + temperatureCount);
+                // logger.info("idTotal : " + idTotal);
+                // logger.info("temperatureTotal : " + temperatureTotal);
+                // logger.info("temperatureMin : " + temperatureMin);
+                // logger.info("temperatureMax : " + temperatureMax);
 
-                } else {
-                    logger.info("Date : " + prevForecastInfo.getDt_txt());
-                    logger.info("temperatureCountCount : " + temperatureCount);
+                weatherNextDay = new WeatherNextDay();
+                weatherNextDay.setId(BigDecimal.valueOf(idTotal)
+                        .divide(BigDecimal.valueOf(temperatureCount), 0, RoundingMode.HALF_DOWN).toString());
+                weatherNextDay.setMain("");
+                weatherNextDay.setDescription("");
+                decideWeatherCondition(weatherNextDay);
+                String iconName = weatherNextDay.getIcon();
+                weatherNextDay.setIcon("http://openweathermap.org/img/wn/"
+                        + iconName.substring(0, iconName.length() - 1) + "d@4x.png");
+                weatherNextDay.setTemp(temperatureTotal
+                        .divide(BigDecimal.valueOf(temperatureCount), 2, RoundingMode.HALF_DOWN).toString());
+                weatherNextDay.setTempMin(temperatureMin.toString());
+                weatherNextDay.setTempMax(temperatureMax.toString());
+                weatherNextDay.setDtTxt(forecastInfos[i].getDt_txt());
+                weatherNextDays.add(weatherNextDay);
 
-                    weatherNextDay = new WeatherNextDay();
-                    weatherNextDay.setId(prevForecastInfo.getWeather()[0].getId());
-                    weatherNextDay.setMain(prevForecastInfo.getWeather()[0].getMain());
-                    weatherNextDay.setDescription(prevForecastInfo.getWeather()[0].getDescription());
-                    weatherNextDay
-                            .setIcon(
-                                    "http://openweathermap.org/img/wn/"
-                                            + prevForecastInfo.getWeather()[0].getIcon().substring(0,
-                                                    prevForecastInfo.getWeather()[0].getIcon().length() - 1)
-                                            + "d@4x.png");
-                    weatherNextDay.setTemp(temperatureTotal
-                            .divide(BigDecimal.valueOf(temperatureCount), 2, RoundingMode.HALF_DOWN).toString());
-                    weatherNextDay.setTempMin(temperatureMin.toString());
-                    weatherNextDay.setTempMax(temperatureMax.toString());
-                    weatherNextDay.setDtTxt(prevForecastInfo.getDt_txt());
-                    if (addedCountToArray < 4) {
-                        weatherNextDays.add(weatherNextDay);
-                        addedCountToArray++;
-                    }
+                // logger.info("id-calc : " + weatherNextDay.getId());
+                // logger.info("temp-calc : " + weatherNextDay.getTemp());
 
-                    temperatureMin = BigDecimal.valueOf(1000);
-                    temperatureMax = BigDecimal.valueOf(-1000);
-                    temperatureTotal = BigDecimal.valueOf(0);
-
-                    temperatureCount = 0;
-                    prevForecastInfo = forecastInfo;
-                    prevDate = forecastInfo.getDt_txt().substring(0, 10);
-
-                    if (BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_min()))
-                            .compareTo(temperatureMin) == -1) {
-                        temperatureMin = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_min()));
-                    }
-
-                    if (BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_max()))
-                            .compareTo(temperatureMax) == 1) {
-                        temperatureMax = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp_max()));
-                    }
-
-                    BigDecimal temperature = BigDecimal.valueOf(Double.parseDouble(forecastInfo.getMain().getTemp()));
-                    temperatureTotal = temperatureTotal.add(temperature);
-
-                    temperatureCount++;
-
-                }
+                temperatureMin = BigDecimal.valueOf(1000);
+                temperatureMax = BigDecimal.valueOf(-1000);
+                temperatureTotal = BigDecimal.valueOf(0);
+                idTotal = 0;
+                temperatureCount = 0;
 
             }
-        }
 
-        logger.info("Date : " + prevForecastInfo.getDt_txt());
-        logger.info("temperatureCount : " + temperatureCount);
-
-        weatherNextDay = new WeatherNextDay();
-        weatherNextDay.setId(prevForecastInfo.getWeather()[0].getId());
-        weatherNextDay.setMain(prevForecastInfo.getWeather()[0].getMain());
-        weatherNextDay.setDescription(prevForecastInfo.getWeather()[0].getDescription());
-        weatherNextDay.setIcon("http://openweathermap.org/img/wn/" + prevForecastInfo.getWeather()[0].getIcon()
-                .substring(0, prevForecastInfo.getWeather()[0].getIcon().length() - 1) + "d@4x.png");
-        weatherNextDay.setTemp(
-                temperatureTotal.divide(BigDecimal.valueOf(temperatureCount), 2, RoundingMode.HALF_DOWN).toString());
-        weatherNextDay.setTempMin(temperatureMin.toString());
-        weatherNextDay.setTempMax(temperatureMax.toString());
-        weatherNextDay.setDtTxt(prevForecastInfo.getDt_txt());
-        if (addedCountToArray < 4) {
-            weatherNextDays.add(weatherNextDay);
-            addedCountToArray++;
         }
 
         return weatherNextDays;
@@ -672,6 +635,232 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
             logger.info("WeatherHistory Record has been Created. !!!");
         }
+    }
+
+    private void decideWeatherCondition(WeatherNextDay wnd) {
+
+        if (Integer.parseInt(wnd.getId()) >= 804) {
+            wnd.setMain("Clouds");
+            wnd.setDescription("overcast clouds: 85-100%");
+            wnd.setIcon("04d");
+        } else if (Integer.parseInt(wnd.getId()) >= 803) {
+            wnd.setMain("Clouds");
+            wnd.setDescription("broken clouds: 51-84%");
+            wnd.setIcon("04d");
+        } else if (Integer.parseInt(wnd.getId()) >= 802) {
+            wnd.setMain("Clouds");
+            wnd.setDescription("scattered clouds: 25-50%");
+            wnd.setIcon("03d");
+        } else if (Integer.parseInt(wnd.getId()) >= 801) {
+            wnd.setMain("Clouds");
+            wnd.setDescription("ew clouds: 11-25%");
+            wnd.setIcon("02d");
+        } else if (Integer.parseInt(wnd.getId()) >= 800) {
+            wnd.setMain("Clear");
+            wnd.setDescription("clear sky");
+            wnd.setIcon("01d");
+        } else if (Integer.parseInt(wnd.getId()) >= 781) {
+            wnd.setMain("Tornado");
+            wnd.setDescription("tornado");
+            wnd.setIcon("50d");
+        } else if (Integer.parseInt(wnd.getId()) >= 771) {
+            wnd.setMain("Squall");
+            wnd.setDescription("squalls");
+            wnd.setIcon("50d");
+        } else if (Integer.parseInt(wnd.getId()) >= 762) {
+            wnd.setMain("Ash");
+            wnd.setDescription("volcanic ash");
+            wnd.setIcon("50d");
+        } else if (Integer.parseInt(wnd.getId()) >= 761) {
+            wnd.setMain("Dust");
+            wnd.setDescription("dust");
+            wnd.setIcon("50d");
+        } else if (Integer.parseInt(wnd.getId()) >= 751) {
+            wnd.setMain("Sand");
+            wnd.setDescription("sand");
+            wnd.setIcon("50d");
+        } else if (Integer.parseInt(wnd.getId()) >= 741) {
+            wnd.setMain("Fog");
+            wnd.setDescription("fog");
+            wnd.setIcon("50d");
+        } else if (Integer.parseInt(wnd.getId()) >= 731) {
+            wnd.setMain("Fog");
+            wnd.setDescription("sand/ dust whirls");
+            wnd.setIcon("50d");
+        } else if (Integer.parseInt(wnd.getId()) >= 721) {
+            wnd.setMain("Haze");
+            wnd.setDescription("Haze");
+            wnd.setIcon("50d");
+        } else if (Integer.parseInt(wnd.getId()) >= 711) {
+            wnd.setMain("Smoke");
+            wnd.setDescription("Smoke");
+            wnd.setIcon("50d");
+        } else if (Integer.parseInt(wnd.getId()) >= 701) {
+            wnd.setMain("Mist");
+            wnd.setDescription("mist");
+            wnd.setIcon("50d");
+        } else if (Integer.parseInt(wnd.getId()) >= 622) {
+            wnd.setMain("Snow");
+            wnd.setDescription("Heavy shower snow");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 621) {
+            wnd.setMain("Snow");
+            wnd.setDescription("Shower snow");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 620) {
+            wnd.setMain("Snow");
+            wnd.setDescription("Light shower snow");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 616) {
+            wnd.setMain("Snow");
+            wnd.setDescription("Rain and snow");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 615) {
+            wnd.setMain("Snow");
+            wnd.setDescription("Light rain and snow");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 613) {
+            wnd.setMain("Snow");
+            wnd.setDescription("Shower sleet");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 612) {
+            wnd.setMain("Snow");
+            wnd.setDescription("Light shower sleet");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 611) {
+            wnd.setMain("Snow");
+            wnd.setDescription("Sleet");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 602) {
+            wnd.setMain("Snow");
+            wnd.setDescription("Heavy snow");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 601) {
+            wnd.setMain("Snow");
+            wnd.setDescription("Snow");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 600) {
+            wnd.setMain("Snow");
+            wnd.setDescription("light snow");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 531) {
+            wnd.setMain("Rain");
+            wnd.setDescription("ragged shower rain");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 522) {
+            wnd.setMain("Rain");
+            wnd.setDescription("heavy intensity shower rain");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 521) {
+            wnd.setMain("Rain");
+            wnd.setDescription("shower rain");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 520) {
+            wnd.setMain("Rain");
+            wnd.setDescription("light intensity shower rain");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 511) {
+            wnd.setMain("Rain");
+            wnd.setDescription("freezing rain");
+            wnd.setIcon("13d");
+        } else if (Integer.parseInt(wnd.getId()) >= 504) {
+            wnd.setMain("Rain");
+            wnd.setDescription("extreme rain");
+            wnd.setIcon("10d");
+        } else if (Integer.parseInt(wnd.getId()) >= 503) {
+            wnd.setMain("Rain");
+            wnd.setDescription("very heavy rain");
+            wnd.setIcon("10d");
+        } else if (Integer.parseInt(wnd.getId()) >= 502) {
+            wnd.setMain("Rain");
+            wnd.setDescription("heavy intensity rain");
+            wnd.setIcon("10d");
+        } else if (Integer.parseInt(wnd.getId()) >= 501) {
+            wnd.setMain("Rain");
+            wnd.setDescription("moderate rain");
+            wnd.setIcon("10d");
+        } else if (Integer.parseInt(wnd.getId()) >= 500) {
+            wnd.setMain("Rain");
+            wnd.setDescription("light rain");
+            wnd.setIcon("10d");
+        } else if (Integer.parseInt(wnd.getId()) >= 321) {
+            wnd.setMain("Drizzle");
+            wnd.setDescription("shower drizzle");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 314) {
+            wnd.setMain("Drizzle");
+            wnd.setDescription("heavy shower rain and drizzle");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 313) {
+            wnd.setMain("Drizzle");
+            wnd.setDescription("shower rain and drizzle");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 312) {
+            wnd.setMain("Drizzle");
+            wnd.setDescription("heavy intensity drizzle rain");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 311) {
+            wnd.setMain("Drizzle");
+            wnd.setDescription("drizzle rain");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 310) {
+            wnd.setMain("Drizzle");
+            wnd.setDescription("light intensity drizzle rain");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 302) {
+            wnd.setMain("Drizzle");
+            wnd.setDescription("heavy intensity drizzle");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 301) {
+            wnd.setMain("Drizzle");
+            wnd.setDescription("drizzle");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 300) {
+            wnd.setMain("Drizzle");
+            wnd.setDescription("light intensity drizzle");
+            wnd.setIcon("09d");
+        } else if (Integer.parseInt(wnd.getId()) >= 232) {
+            wnd.setMain("Thunderstorm");
+            wnd.setDescription("thunderstorm with heavy drizzle");
+            wnd.setIcon("11d");
+        } else if (Integer.parseInt(wnd.getId()) >= 231) {
+            wnd.setMain("Thunderstorm");
+            wnd.setDescription("thunderstorm with drizzle");
+            wnd.setIcon("11d");
+        } else if (Integer.parseInt(wnd.getId()) >= 230) {
+            wnd.setMain("Thunderstorm");
+            wnd.setDescription("thunderstorm with light drizzle");
+            wnd.setIcon("11d");
+        } else if (Integer.parseInt(wnd.getId()) >= 221) {
+            wnd.setMain("Thunderstorm");
+            wnd.setDescription("ragged thunderstorm");
+            wnd.setIcon("11d");
+        } else if (Integer.parseInt(wnd.getId()) >= 212) {
+            wnd.setMain("Thunderstorm");
+            wnd.setDescription("heavy thunderstorm");
+            wnd.setIcon("11d");
+        } else if (Integer.parseInt(wnd.getId()) >= 211) {
+            wnd.setMain("Thunderstorm");
+            wnd.setDescription("thunderstorm");
+            wnd.setIcon("11d");
+        } else if (Integer.parseInt(wnd.getId()) >= 210) {
+            wnd.setMain("Thunderstorm");
+            wnd.setDescription("light thunderstorm");
+            wnd.setIcon("11d");
+        } else if (Integer.parseInt(wnd.getId()) >= 202) {
+            wnd.setMain("Thunderstorm");
+            wnd.setDescription("thunderstorm with heavy rain");
+            wnd.setIcon("11d");
+        } else if (Integer.parseInt(wnd.getId()) >= 201) {
+            wnd.setMain("Thunderstorm");
+            wnd.setDescription("thunderstorm with rain");
+            wnd.setIcon("11d");
+        } else if (Integer.parseInt(wnd.getId()) >= 200) {
+            wnd.setMain("Thunderstorm");
+            wnd.setDescription("thunderstorm with light rain");
+            wnd.setIcon("11d");
+        }
+
     }
 
 }
