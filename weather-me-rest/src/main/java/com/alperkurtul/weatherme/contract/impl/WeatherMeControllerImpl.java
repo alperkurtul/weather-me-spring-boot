@@ -1,7 +1,13 @@
 package com.alperkurtul.weatherme.contract.impl;
 
 import com.alperkurtul.weatherme.mapper.RestMapper;
-import com.alperkurtul.weatherme.model.*;
+import com.alperkurtul.weatherme.model.CurrentWeatherResponse;
+import com.alperkurtul.weatherme.model.LocationDto;
+import com.alperkurtul.weatherme.model.LocationModel;
+import com.alperkurtul.weatherme.model.LocationResp;
+import com.alperkurtul.weatherme.model.LocationResponse;
+import com.alperkurtul.weatherme.model.WeatherMeDto;
+import com.alperkurtul.weatherme.model.WeatherMeRequest;
 import com.alperkurtul.weatherme.contract.WeatherMeService;
 import com.alperkurtul.weatherme.contract.WeatherMeController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +26,7 @@ public class WeatherMeControllerImpl implements WeatherMeController {
     private RestMapper restMapper = RestMapper.INSTANCE;
 
     @Override
-    public CurrentWeatherResponse getCurrentWeather( String locationId) throws Exception {
+    public CurrentWeatherResponse getCurrentWeather(String locationId) throws Exception {
 
         WeatherMeRequest weatherMeRequest = new WeatherMeRequest();
         weatherMeRequest.setLocationId(locationId);
@@ -36,19 +42,25 @@ public class WeatherMeControllerImpl implements WeatherMeController {
     }
 
     @Override
-    public List<LocationResponse> getLocationList(String locationName) throws Exception {
+    public LocationResponse getLocationList(String locationName) throws Exception {
 
         String language = "tr";
 
-        List<LocationDto> locationDtoList = weatherMeService.findAllLocationByLocationName(locationName, language);
+        LocationDto locationDto = weatherMeService.findAllLocationByLocationName(locationName, language);
 
-        List<LocationResponse> locationResponseList = new ArrayList<LocationResponse>();
-        for (LocationDto locationDto : locationDtoList) {
-            LocationResponse locationResponse = restMapper.toLocationResponse(locationDto);
-            locationResponseList.add(locationResponse);
+        LocationResponse locationResponse = new LocationResponse();
+        locationResponse = restMapper.toLocationResponse(locationDto);
+
+        List<LocationResp> locationResps = new ArrayList<>();
+        List<LocationModel> locationModels = locationDto.getLocationModelList();
+        for (LocationModel locationModel : locationModels) {
+            LocationResp locationResp = restMapper.toLocationResp(locationModel);
+            locationResps.add(locationResp);
         }
 
-        return locationResponseList;
+        locationResponse.setLocationRespList(locationResps);
+
+        return locationResponse;
     }
 
     @Override

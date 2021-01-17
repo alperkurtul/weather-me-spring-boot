@@ -15,4 +15,6 @@ public interface RestMapper {
 
     LocationResponse toLocationResponse(LocationDto output);
 
+    LocationResp toLocationResp(LocationModel output);
+
 }

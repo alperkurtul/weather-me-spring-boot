@@ -29,7 +29,8 @@ public class LocationDataImpl implements LocationData {
 
         Optional<Location> optionalLocation = locationRepository.findById(location.getLocationId());
         if (optionalLocation.isPresent()) {
-            throw new EntityAlreadyExistExceptionN43(new Exception("Error in Location model"), ErrorContants.REASON_CODE_ENTITY_ALREADY_EXIST);
+            throw new EntityAlreadyExistExceptionN43(new Exception("Error in Location model"),
+                    ErrorContants.REASON_CODE_ENTITY_ALREADY_EXIST);
         }
 
         locationRepository.save(location);
@@ -45,7 +46,8 @@ public class LocationDataImpl implements LocationData {
 
         Optional<Location> optionalWeather = locationRepository.findById(location.getLocationId());
         if (!optionalWeather.isPresent()) {
-            throw new EntityNotFoundExceptionN10(new Exception("Error in Location model"), ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
+            throw new EntityNotFoundExceptionN10(new Exception("Error in Location model"),
+                    ErrorContants.REASON_CODE_ENTITY_NOT_FOUND);
         }
 
         locationRepository.save(location);
@@ -62,7 +64,16 @@ public class LocationDataImpl implements LocationData {
         Locale locale = Locale.forLanguageTag(language);
         String lowerCaseLocationName = locationName.toLowerCase(locale);
 
-        return locationRepository.findAllByLowerCaseLocationNameIsContaining(lowerCaseLocationName);
+        // List<Location> locations =
+        // locationRepository.findAllByLowerCaseLocationNameIsContaining(lowerCaseLocationName);
+
+        // List<Location> locations =
+        // locationRepository.findAllByLowerCaseLocationNameIsContainingOrderByLowerCaseLocationName(lowerCaseLocationName);
+
+        List<Location> locations = locationRepository
+                .findAllByLowerCaseLocationNameStartsWithOrderByLowerCaseLocationName(lowerCaseLocationName);
+
+        return locations;
     }
 
 }

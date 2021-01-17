@@ -1,59 +1,26 @@
 package com.alperkurtul.weatherme.model;
 
+import java.util.List;
+
 public class LocationResponse {
 
-    private int locationId;
-    private String locationName;
-    private String state;
-    private String country;
-    private String longitude;
-    private String latitude;
+    private String searchedKeyword;
+    private List<LocationResp> locationRespList;
 
-    public int getLocationId() {
-        return locationId;
+    public String getSearchedKeyword() {
+        return searchedKeyword;
     }
 
-    public void setLocationId(int locationId) {
-        this.locationId = locationId;
+    public void setSearchedKeyword(String searchedKeyword) {
+        this.searchedKeyword = searchedKeyword;
     }
 
-    public String getLocationName() {
-        return locationName;
+    public List<LocationResp> getLocationRespList() {
+        return locationRespList;
     }
 
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
+    public void setLocationRespList(List<LocationResp> locationRespList) {
+        this.locationRespList = locationRespList;
     }
 
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
 }

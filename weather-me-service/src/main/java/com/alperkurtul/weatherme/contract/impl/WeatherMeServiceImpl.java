@@ -14,7 +14,16 @@ import com.alperkurtul.weatherme.json.location.WeatherLocation;
 import com.alperkurtul.weatherme.json.threehourforecastfivedays.ForecastInfo;
 import com.alperkurtul.weatherme.json.threehourforecastfivedays.ThreeHourForecastFiveDays;
 import com.alperkurtul.weatherme.mapper.ServiceMapper;
-import com.alperkurtul.weatherme.model.*;
+import com.alperkurtul.weatherme.model.Location;
+import com.alperkurtul.weatherme.model.LocationDto;
+import com.alperkurtul.weatherme.model.LocationModel;
+import com.alperkurtul.weatherme.model.Weather;
+import com.alperkurtul.weatherme.model.WeatherHistory;
+import com.alperkurtul.weatherme.model.WeatherHistoryId;
+import com.alperkurtul.weatherme.model.WeatherId;
+import com.alperkurtul.weatherme.model.WeatherMeDto;
+import com.alperkurtul.weatherme.model.WeatherNearFuture;
+import com.alperkurtul.weatherme.model.WeatherNextDay;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -314,17 +323,21 @@ public class WeatherMeServiceImpl implements WeatherMeService {
     }
 
     @Override
-    public List<LocationDto> findAllLocationByLocationName(String locationName, String language) throws Exception {
+    public LocationDto findAllLocationByLocationName(String locationName, String language) throws Exception {
 
-        List<Location> locationList = locationData.findAllLocationByLocationName(locationName, language);
+        List<Location> locationListFromDataLayer = locationData.findAllLocationByLocationName(locationName, language);
 
-        List<LocationDto> locationDtoList = new ArrayList<>();
-        for (Location location : locationList) {
-            LocationDto locationDto = serviceMapper.toLocationDto(location);
-            locationDtoList.add(locationDto);
+        List<LocationModel> locationModelList = new ArrayList<>();
+        for (Location locationFromDataLayer : locationListFromDataLayer) {
+            LocationModel locationModel = serviceMapper.toLocationModel(locationFromDataLayer);
+            locationModelList.add(locationModel);
         }
 
-        return locationDtoList;
+        LocationDto locationDto = new LocationDto();
+        locationDto.setSearchedKeyword(locationName);
+        locationDto.setLocationModelList(locationModelList);
+
+        return locationDto;
     }
 
     @Override
