@@ -96,7 +96,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         }
 
         if (var1.getLanguage() == null || var1.getLanguage().isEmpty()) {
-            var1.setLanguage("tr");
+            var1.setLanguage("en");
         }
 
         logger.info("locationId: " + var1.getLocationId() + " units: " + var1.getUnits() + " language: "
@@ -414,6 +414,9 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         weatherMeDto.setCountryCode(currentWeather.getSys().getCountry());
         weatherMeDto.setSunRise(currentWeather.getSys().getSunrise());
         weatherMeDto.setSunSet(currentWeather.getSys().getSunset());
+        weatherMeDto.setVisibility(currentWeather.getVisibility());
+        weatherMeDto.setWindSpeed(currentWeather.getWind().getSpeed());
+        weatherMeDto.setWindDirectionDegree(currentWeather.getWind().getDeg());
 
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         long unixTime;
@@ -427,9 +430,9 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
         weatherMeDto.setSunSet(formattedDtm);
 
-        unixTime = Long.valueOf(weatherMeDto.getTimeZone());
+        unixTime = Long.valueOf(currentWeather.getDt()) + Long.valueOf(weatherMeDto.getTimeZone());
         formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
-        weatherMeDto.setTimeZone(formattedDtm);
+        weatherMeDto.setWeatherDataTime(formattedDtm);
 
         return weatherMeDto;
     }
@@ -450,13 +453,23 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
             weatherNearFuture = new WeatherNearFuture();
 
+            logger.info("Timezone: " + forecastWeather.getCity().getTimezone());
+
             weatherNearFuture.setId(forecastWeather.getList()[i].getWeather()[0].getId());
             weatherNearFuture.setMain(forecastWeather.getList()[i].getWeather()[0].getMain());
             weatherNearFuture.setDescription(forecastWeather.getList()[i].getWeather()[0].getDescription());
             weatherNearFuture.setIcon("http://openweathermap.org/img/wn/"
                     + forecastWeather.getList()[i].getWeather()[0].getIcon() + "@4x.png");
             weatherNearFuture.setTemp(forecastWeather.getList()[i].getMain().getTemp());
-            weatherNearFuture.setDtTxt(forecastWeather.getList()[i].getDt_txt());
+
+            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            long unixTime;
+            String formattedDtm;
+
+            unixTime = Long.valueOf(forecastWeather.getList()[i].getDt())
+                    + Long.valueOf(forecastWeather.getCity().getTimezone());
+            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+            weatherNearFuture.setDtTxt(formattedDtm);
 
             weatherNearFutures.add(weatherNearFuture);
 

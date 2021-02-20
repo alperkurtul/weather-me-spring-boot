@@ -23,6 +23,10 @@ public class WeatherMeDto {
     private String timeZone;
     private String locationId;
     private String locationName;
+    private String visibility;
+    private String windSpeed;
+    private String windDirectionDegree;
+    private String weatherDataTime;
     private ArrayList<WeatherNearFuture> nearFuture;
     private ArrayList<WeatherNextDay> nextDays;
 
@@ -184,5 +188,37 @@ public class WeatherMeDto {
 
     public void setLocationName(String locationName) {
         this.locationName = locationName;
+    }
+
+    public String getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
+    }
+
+    public String getWindSpeed() {
+        return windSpeed;
+    }
+
+    public void setWindSpeed(String windSpeed) {
+        this.windSpeed = windSpeed;
+    }
+
+    public String getWindDirectionDegree() {
+        return windDirectionDegree;
+    }
+
+    public void setWindDirectionDegree(String windDirectionDegree) {
+        this.windDirectionDegree = windDirectionDegree;
+    }
+
+    public String getWeatherDataTime() {
+        return weatherDataTime;
+    }
+
+    public void setWeatherDataTime(String weatherDataTime) {
+        this.weatherDataTime = weatherDataTime;
     }
 }
