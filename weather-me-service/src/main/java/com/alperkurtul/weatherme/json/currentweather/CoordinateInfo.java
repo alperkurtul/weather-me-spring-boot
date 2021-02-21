@@ -1,6 +1,7 @@
 package com.alperkurtul.weatherme.json.currentweather;
 
-public class CWCoordInfo {
+public class CoordinateInfo {
+    
     private String lon;
     private String lat;
 

@@ -16,11 +16,17 @@ public class WeatherHistory {
     @Column(name = "LocationName")
     private String locationName;
 
-    @Column(name = "WeatherJson", length = 4096)
-    private String weatherJson;
+    @Column(name = "WeatherRequest")
+    private String weatherRequest;
 
-    @Column(name = "RequestUrl")
-    private String requestUrl;
+    @Column(name = "WeatherResponse", length = 4096)
+    private String weatherResponse;
+
+    @Column(name = "ForecastRequest")
+    private String forecastRequest;
+
+    @Column(name = "ForecastResponse", length = 4096)
+    private String forecastResponse;
 
     @Column(name="CreateTime")
     private LocalDateTime createTime;
@@ -47,20 +53,36 @@ public class WeatherHistory {
         this.locationName = locationName;
     }
 
-    public String getWeatherJson() {
-        return weatherJson;
+    public String getWeatherRequest() {
+        return weatherRequest;
     }
 
-    public void setWeatherJson(String weatherJson) {
-        this.weatherJson = weatherJson;
+    public void setWeatherRequest(String weatherRequest) {
+        this.weatherRequest = weatherRequest;
     }
 
-    public String getRequestUrl() {
-        return requestUrl;
+    public String getWeatherResponse() {
+        return weatherResponse;
     }
 
-    public void setRequestUrl(String requestUrl) {
-        this.requestUrl = requestUrl;
+    public void setWeatherResponse(String weatherResponse) {
+        this.weatherResponse = weatherResponse;
+    }
+
+    public String getForecastRequest() {
+        return forecastRequest;
+    }
+
+    public void setForecastRequest(String forecastRequest) {
+        this.forecastRequest = forecastRequest;
+    }
+
+    public String getForecastResponse() {
+        return forecastResponse;
+    }
+
+    public void setForecastResponse(String forecastResponse) {
+        this.forecastResponse = forecastResponse;
     }
 
     public LocalDateTime getCreateTime() {
@@ -86,4 +108,5 @@ public class WeatherHistory {
     public void setApiCalledFlag(boolean apiCalledFlag) {
         this.apiCalledFlag = apiCalledFlag;
     }
+    
 }

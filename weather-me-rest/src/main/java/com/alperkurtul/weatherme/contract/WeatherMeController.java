@@ -15,7 +15,7 @@ public interface WeatherMeController {
     CurrentWeatherResponse getCurrentWeather(@PathVariable("locationid") String locationId) throws Exception;
 
     @GetMapping(value = "/getlocationlist")
-    List<LocationResponse> getLocationList(@RequestParam("locationname") String locationName) throws Exception;
+    LocationResponse getLocationList(@RequestParam("locationname") String locationName) throws Exception;
 
     @GetMapping(value = "/loadlocationstodb")
     Boolean loadLocationsToDb() throws Exception;

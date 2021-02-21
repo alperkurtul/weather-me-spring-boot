@@ -2,25 +2,43 @@ package com.alperkurtul.weatherme.json.currentweather;
 
 public class CurrentWeather {
 
-    private CWCoordInfo coord;
+    private CoordinateInfo coord;
     private WeatherInfo[] weather;
     private String base;
     private MainInfo main;
-    private String visibility;
     private WindInfo wind;
     private CloudsInfo clouds;
+    private RainInfo rain;
+    private SnowInfo snow;
     private String dt;
     private SysInfo sys;
     private String timezone;
     private String id;
     private String name;
     private String cod;
+    private String visibility;
 
-    public CWCoordInfo getCoord() {
+    public CoordinateInfo getCoord() {
         return coord;
     }
 
-    public void setCoord(CWCoordInfo coord) {
+    public SnowInfo getSnow() {
+        return snow;
+    }
+
+    public void setSnow(SnowInfo snow) {
+        this.snow = snow;
+    }
+
+    public RainInfo getRain() {
+        return rain;
+    }
+
+    public void setRain(RainInfo rain) {
+        this.rain = rain;
+    }
+
+    public void setCoord(CoordinateInfo coord) {
         this.coord = coord;
     }
 

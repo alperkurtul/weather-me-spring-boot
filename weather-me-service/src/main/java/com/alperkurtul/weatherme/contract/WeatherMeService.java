@@ -11,7 +11,7 @@ public interface WeatherMeService {
 
     WeatherMeDto findById(WeatherMeDto var1) throws Exception;
 
-    List<LocationDto> findAllLocationByLocationName(String locationName, String language) throws Exception;
+    LocationDto findAllLocationByLocationName(String locationName, String language) throws Exception;
 
     Boolean loadLocationsToDb() throws Exception;
 

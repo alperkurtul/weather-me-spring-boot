@@ -9,4 +9,8 @@ public interface LocationRepository extends JpaRepository<Location, Integer> {
 
     List<Location> findAllByLowerCaseLocationNameIsContaining(String lowerCaseLocationName);
 
+    List<Location> findAllByLowerCaseLocationNameIsContainingOrderByLowerCaseLocationName(String lowerCaseLocationName);
+
+    List<Location> findAllByLowerCaseLocationNameStartsWithOrderByLowerCaseLocationName(String lowerCaseLocationName);
+
 }

@@ -15,6 +15,6 @@ public interface ServiceMapper {
 
     WeatherMeDto toWeatherMeDto(Weather output1, WeatherId output2);
 
-    LocationDto toLocationDto(Location output);
+    LocationModel toLocationModel(Location output);
 
 }
