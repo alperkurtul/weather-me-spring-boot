@@ -453,8 +453,6 @@ public class WeatherMeServiceImpl implements WeatherMeService {
 
             weatherNearFuture = new WeatherNearFuture();
 
-            logger.info("Timezone: " + forecastWeather.getCity().getTimezone());
-
             weatherNearFuture.setId(forecastWeather.getList()[i].getWeather()[0].getId());
             weatherNearFuture.setMain(forecastWeather.getList()[i].getWeather()[0].getMain());
             weatherNearFuture.setDescription(forecastWeather.getList()[i].getWeather()[0].getDescription());
