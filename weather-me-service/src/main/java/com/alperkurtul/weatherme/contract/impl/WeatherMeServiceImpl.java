@@ -80,9 +80,9 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String updateTimeExpired = "N"; // Y : expired , N : does not expired
 
         // TODO : remove this code later
-        if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
+        /*if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
             var1.setLocationId("745044");
-        }
+        }*/
 
         if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
             throw new MandatoryInputMissingExceptionN20(
@@ -583,14 +583,19 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String appId = weatherMeConfigurationProperties.getApiAppid();
         String currentWeatherSuffix = weatherMeConfigurationProperties.getApiSuffixForCurrentWeather();
 
-        weatherRequestUrl = apiUrl + currentWeatherSuffix + "q=" + var1.getLocationName() + "&lang="
+        logger.info("var1.getLocationId() : " + var1.getLocationId());
+        /*weatherRequestUrl = apiUrl + currentWeatherSuffix + "q=" + var1.getLocationName() + "&lang="
+                + var1.getLanguage() + "&units=" + var1.getUnits() + "&appid=" + appId;*/
+        weatherRequestUrl = apiUrl + currentWeatherSuffix + "id=" + var1.getLocationId() + "&lang="
                 + var1.getLanguage() + "&units=" + var1.getUnits() + "&appid=" + appId;
 
         String response = "";
         try {
             logger.info("calling CurrentWeather API !!");
+            logger.info(weatherRequestUrl);
             response = restTemplate.getForObject(weatherRequestUrl, String.class);
             logger.info("returned response from CurrentWeather API !!");
+            logger.info("response : " + response);
         } catch (HttpClientErrorException e) {
             new HttpExceptionDispatcher().dispatchToException(e);
         }
@@ -607,12 +612,15 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String appId = weatherMeConfigurationProperties.getApiAppid();
         String forecastWeatherSuffix = weatherMeConfigurationProperties.getApiSuffixForForecastWeather();
 
-        forecastRequestUrl = apiUrl + forecastWeatherSuffix + "q=" + var1.getLocationName() + "&lang="
+        /*forecastRequestUrl = apiUrl + forecastWeatherSuffix + "q=" + var1.getLocationName() + "&lang="
+                + var1.getLanguage() + "&units=" + var1.getUnits() + "&cnt=" + "40" + "&appid=" + appId;*/
+        forecastRequestUrl = apiUrl + forecastWeatherSuffix + "id=" + var1.getLocationId() + "&lang="
                 + var1.getLanguage() + "&units=" + var1.getUnits() + "&cnt=" + "40" + "&appid=" + appId;
 
         String response = "";
         try {
             logger.info("calling ForecastWeather API !!");
+            logger.info(forecastRequestUrl);
             response = restTemplate.getForObject(forecastRequestUrl, String.class);
             logger.info("returned response from ForecastWeather API !!");
         } catch (HttpClientErrorException e) {
