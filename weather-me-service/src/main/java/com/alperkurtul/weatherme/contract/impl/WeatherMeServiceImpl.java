@@ -35,6 +35,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -80,9 +81,10 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String updateTimeExpired = "N"; // Y : expired , N : does not expired
 
         // TODO : remove this code later
-        /*if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
-            var1.setLocationId("745044");
-        }*/
+        /*
+         * if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
+         * var1.setLocationId("745044"); }
+         */
 
         if (var1.getLocationId() == null || var1.getLocationId().isEmpty()) {
             throw new MandatoryInputMissingExceptionN20(
@@ -417,6 +419,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         weatherMeDto.setVisibility(currentWeather.getVisibility());
         weatherMeDto.setWindSpeed(currentWeather.getWind().getSpeed());
         weatherMeDto.setWindDirectionDegree(currentWeather.getWind().getDeg());
+        weatherMeDto.setWeatherDataTime(currentWeather.getDt());
 
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         long unixTime;
@@ -430,9 +433,16 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
         weatherMeDto.setSunSet(formattedDtm);
 
-        unixTime = Long.valueOf(currentWeather.getDt()) + Long.valueOf(weatherMeDto.getTimeZone());
+        unixTime = Long.valueOf(weatherMeDto.getWeatherDataTime()); 
         formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
         weatherMeDto.setWeatherDataTime(formattedDtm);
+
+        /*unixTime = Long.valueOf(weatherMeDto.getTimeZone());
+        formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+        logger.info("getTimeZone : " + currentWeather.getTimezone() + " / " + formattedDtm);
+        logger.info("getDt : " + currentWeather.getDt() + " / " + weatherMeDto.getWeatherDataTime());
+        logger.info("getSunRise : " + currentWeather.getSys().getSunrise() + " / " + weatherMeDto.getSunRise());
+        logger.info("getSunSet : " + currentWeather.getSys().getSunset() + " / " + weatherMeDto.getSunSet());*/
 
         return weatherMeDto;
     }
@@ -464,8 +474,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             long unixTime;
             String formattedDtm;
 
-            unixTime = Long.valueOf(forecastWeather.getList()[i].getDt())
-                    + Long.valueOf(forecastWeather.getCity().getTimezone());
+            unixTime = Long.valueOf(forecastWeather.getList()[i].getDt()) + Long.valueOf(forecastWeather.getCity().getTimezone());
             formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
             weatherNearFuture.setDtTxt(formattedDtm);
 
@@ -584,10 +593,13 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String currentWeatherSuffix = weatherMeConfigurationProperties.getApiSuffixForCurrentWeather();
 
         logger.info("var1.getLocationId() : " + var1.getLocationId());
-        /*weatherRequestUrl = apiUrl + currentWeatherSuffix + "q=" + var1.getLocationName() + "&lang="
-                + var1.getLanguage() + "&units=" + var1.getUnits() + "&appid=" + appId;*/
-        weatherRequestUrl = apiUrl + currentWeatherSuffix + "id=" + var1.getLocationId() + "&lang="
-                + var1.getLanguage() + "&units=" + var1.getUnits() + "&appid=" + appId;
+        /*
+         * weatherRequestUrl = apiUrl + currentWeatherSuffix + "q=" +
+         * var1.getLocationName() + "&lang=" + var1.getLanguage() + "&units=" +
+         * var1.getUnits() + "&appid=" + appId;
+         */
+        weatherRequestUrl = apiUrl + currentWeatherSuffix + "id=" + var1.getLocationId() + "&lang=" + var1.getLanguage()
+                + "&units=" + var1.getUnits() + "&appid=" + appId;
 
         String response = "";
         try {
@@ -612,8 +624,11 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         String appId = weatherMeConfigurationProperties.getApiAppid();
         String forecastWeatherSuffix = weatherMeConfigurationProperties.getApiSuffixForForecastWeather();
 
-        /*forecastRequestUrl = apiUrl + forecastWeatherSuffix + "q=" + var1.getLocationName() + "&lang="
-                + var1.getLanguage() + "&units=" + var1.getUnits() + "&cnt=" + "40" + "&appid=" + appId;*/
+        /*
+         * forecastRequestUrl = apiUrl + forecastWeatherSuffix + "q=" +
+         * var1.getLocationName() + "&lang=" + var1.getLanguage() + "&units=" +
+         * var1.getUnits() + "&cnt=" + "40" + "&appid=" + appId;
+         */
         forecastRequestUrl = apiUrl + forecastWeatherSuffix + "id=" + var1.getLocationId() + "&lang="
                 + var1.getLanguage() + "&units=" + var1.getUnits() + "&cnt=" + "40" + "&appid=" + appId;
 
