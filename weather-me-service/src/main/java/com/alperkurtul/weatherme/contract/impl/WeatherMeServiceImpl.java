@@ -377,7 +377,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
         weatherMeDto.setSunSet(formattedDtm);
 
-        unixTime = Long.valueOf(weatherMeDto.getWeatherDataTime()); 
+        unixTime = Long.valueOf(weatherMeDto.getWeatherDataTime()) + Long.valueOf(weatherMeDto.getTimeZone());
         formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
         weatherMeDto.setWeatherDataTime(formattedDtm);
 
@@ -441,10 +441,11 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         ThreeHourForecastFiveDays forecastWeather = objectMapper.readValue(forecastWeatherJson,
                 ThreeHourForecastFiveDays.class);
 
+        List<Map<String, Object>> idArray = new ArrayList<Map<String, Object>>();
         BigDecimal temperatureMin = BigDecimal.valueOf(1000);
         BigDecimal temperatureMax = BigDecimal.valueOf(-1000);
         BigDecimal temperatureTotal = BigDecimal.valueOf(0);
-        long idTotal = 0;
+        //long idTotal = 0;
         long temperatureCount = 0;
 
         ForecastInfo[] forecastInfos = forecastWeather.getList();
@@ -482,7 +483,7 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             temperatureTotal = temperatureTotal
                     .add(BigDecimal.valueOf(Double.parseDouble(forecastInfos[i].getMain().getTemp())));
 
-            idTotal = idTotal + Integer.parseInt(forecastInfos[i].getWeather()[0].getId());
+            //idTotal = idTotal + Integer.parseInt(forecastInfos[i].getWeather()[0].getId());
 
             temperatureCount++;
 
@@ -497,8 +498,8 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                 // logger.info("temperatureMax : " + temperatureMax);
 
                 weatherNextDay = new WeatherNextDay();
-                weatherNextDay.setId(BigDecimal.valueOf(idTotal)
-                        .divide(BigDecimal.valueOf(temperatureCount), 0, RoundingMode.HALF_DOWN).toString());
+                /*weatherNextDay.setId(BigDecimal.valueOf(idTotal)
+                        .divide(BigDecimal.valueOf(temperatureCount), 0, RoundingMode.HALF_DOWN).toString());*/
                 weatherNextDay.setMain("");
                 weatherNextDay.setDescription("");
                 decideWeatherCondition(weatherNextDay);
@@ -515,10 +516,11 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                 // logger.info("id-calc : " + weatherNextDay.getId());
                 // logger.info("temp-calc : " + weatherNextDay.getTemp());
 
+                idArray = new ArrayList<Map<String, Object>>();
                 temperatureMin = BigDecimal.valueOf(1000);
                 temperatureMax = BigDecimal.valueOf(-1000);
                 temperatureTotal = BigDecimal.valueOf(0);
-                idTotal = 0;
+                //idTotal = 0;
                 temperatureCount = 0;
 
             }
@@ -528,6 +530,67 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         return weatherNextDays;
     }
 
+    /*private String idProcess(String processType, String id, List idArray) {
+        Map outMap;
+        
+        if (processType == "PROCESS_ADD") {
+
+        }
+
+        if (processType == "PROCESS_DECIDE") {
+            
+        }
+
+
+        return "";
+    } */
+
+    /*Map<String, Object> getWeatherConditionIcon(int inCondition) {
+        String icon = "";
+        int outCondition;
+        Map<String, Object> outMap = new HashMap<>();
+    
+        if (inCondition < 210) {
+          //icon = '⛈'; // Thunder cloud and rain
+          outCondition = 209;
+        } else if (inCondition < 300) {
+          //icon = '🌩'; // Cloud with lightning
+          outCondition = 299;
+        } else if (inCondition < 500) {
+          //icon = '🌦'; // White sun behind cloud with rain
+          outCondition = 499;
+        } else if (inCondition < 600) {
+          //icon = '🌧'; // Cloud with rain
+          outCondition = 599;
+        } else if (inCondition < 700) {
+          //icon = '🌨'; // Cloud with snow
+          outCondition = 699;
+        } else if (inCondition < 800) {
+          //icon = '☁'; // Cloud   '🌫'; // Fog
+          outCondition = 804;   // 799;
+        } else if (inCondition == 800) {
+          //icon = '☀'; // Black sun with rays
+          outCondition = 800;
+        } else if (inCondition == 801) {
+          //icon = '🌤'; // White sun with small cloud
+          outCondition = 801;
+        } else if (inCondition <= 803) {
+          //icon = '🌥'; // White sun behind cloud
+          outCondition = 803;
+        } else if (inCondition == 804) {
+          //icon = '☁'; // Cloud
+          outCondition = 804;
+        } else {
+          //icon = '🤷‍';
+          outCondition = inCondition;
+        }
+    
+        outMap.put("icon", icon);
+        outMap.put("outCondition", outCondition);
+    
+        return outMap;
+    } */
+    
     private String callCurrentWeatherApi(WeatherMeDto var1) {
 
         logger.info("'WeatherMeServiceImpl.callCurrentWeatherApi' running...");
