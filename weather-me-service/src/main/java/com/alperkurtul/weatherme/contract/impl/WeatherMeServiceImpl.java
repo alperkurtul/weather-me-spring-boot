@@ -441,14 +441,24 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         ThreeHourForecastFiveDays forecastWeather = objectMapper.readValue(forecastWeatherJson,
                 ThreeHourForecastFiveDays.class);
 
+        ForecastInfo[] forecastInfos = forecastWeather.getList();
+
+        for (ForecastInfo item : forecastInfos) {
+            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            long unixTime;
+            String formattedDtm;
+
+            unixTime = Long.valueOf(item.getDt()) + Long.valueOf(forecastWeather.getCity().getTimezone());
+            formattedDtm = Instant.ofEpochSecond(unixTime).atZone(ZoneId.of("GMT+0")).format(formatter);
+            item.setDt_txt(formattedDtm);
+        }
+
         List<Map<String, Object>> idArray = new ArrayList<Map<String, Object>>();
         BigDecimal temperatureMin = BigDecimal.valueOf(1000);
         BigDecimal temperatureMax = BigDecimal.valueOf(-1000);
         BigDecimal temperatureTotal = BigDecimal.valueOf(0);
-        //long idTotal = 0;
         long temperatureCount = 0;
 
-        ForecastInfo[] forecastInfos = forecastWeather.getList();
         int len = forecastInfos.length;
         logger.info("forecastInfos.length : " + len);
         for (int i = 0; i < len; i++) {
@@ -483,23 +493,22 @@ public class WeatherMeServiceImpl implements WeatherMeService {
             temperatureTotal = temperatureTotal
                     .add(BigDecimal.valueOf(Double.parseDouble(forecastInfos[i].getMain().getTemp())));
 
-            //idTotal = idTotal + Integer.parseInt(forecastInfos[i].getWeather()[0].getId());
+            idProcess("PROCESS_ADD",
+                    forecastInfos[i].getWeather()[0].getId(), idArray);
 
             temperatureCount++;
 
             if ((i == (len - 1)) || (!forecastInfos[i].getDt_txt().substring(0, 10)
                     .equals(forecastInfos[i + 1].getDt_txt().substring(0, 10)))) {
 
-                logger.info("Date : " + forecastInfos[i].getDt_txt());
-                logger.info("temperatureCount : " + temperatureCount);
-                // logger.info("idTotal : " + idTotal);
+                // logger.info("Date : " + forecastInfos[i].getDt_txt());
+                // logger.info("temperatureCount : " + temperatureCount);
                 // logger.info("temperatureTotal : " + temperatureTotal);
                 // logger.info("temperatureMin : " + temperatureMin);
                 // logger.info("temperatureMax : " + temperatureMax);
 
                 weatherNextDay = new WeatherNextDay();
-                /*weatherNextDay.setId(BigDecimal.valueOf(idTotal)
-                        .divide(BigDecimal.valueOf(temperatureCount), 0, RoundingMode.HALF_DOWN).toString());*/
+                weatherNextDay.setId(idProcess("PROCESS_DECIDE", "", idArray));
                 weatherNextDay.setMain("");
                 weatherNextDay.setDescription("");
                 decideWeatherCondition(weatherNextDay);
@@ -520,7 +529,6 @@ public class WeatherMeServiceImpl implements WeatherMeService {
                 temperatureMin = BigDecimal.valueOf(1000);
                 temperatureMax = BigDecimal.valueOf(-1000);
                 temperatureTotal = BigDecimal.valueOf(0);
-                //idTotal = 0;
                 temperatureCount = 0;
 
             }
@@ -530,66 +538,107 @@ public class WeatherMeServiceImpl implements WeatherMeService {
         return weatherNextDays;
     }
 
-    /*private String idProcess(String processType, String id, List idArray) {
-        Map outMap;
-        
-        if (processType == "PROCESS_ADD") {
+    private String idProcess(String processType, String id, List<Map<String, Object>> idArray) {
+        Map<String, Object> outMap = null;
+        Integer outCondition;
 
+        if (processType.equals("PROCESS_ADD")) {
+            outCondition = getWeatherCondition(Integer.parseInt(id));
+            String outId = outCondition.toString();
+            String outIcon = "";
+
+            int itemLocation = -1;
+            for (int index = 0; index < idArray.size() ; index++) {
+                if (idArray.get(index).get("id").toString().equals(outId)) {
+                    itemLocation = index;
+                }
+            }
+
+            if (itemLocation == -1) {
+                Map<String, Object> m = new HashMap<>();
+                m.put("id", outId);
+                m.put("icon", outIcon);
+                m.put("iconcount", 1);
+                idArray.add(m);
+            } else {
+                Map<String, Object> m = new HashMap<>();
+                m.put("id", outId);
+                m.put("icon", outIcon);
+                m.put("iconcount", Integer.parseInt(idArray.get(itemLocation).get("iconcount").toString()) + 1);
+                idArray.add(m);
+                idArray.remove(itemLocation);
+            }
+
+            return "";
         }
 
-        if (processType == "PROCESS_DECIDE") {
-            
-        }
+        if (processType.equals("PROCESS_DECIDE")) {
 
+            for(Map item : idArray) {
+                if (outMap == null) {
+                    outMap = item;
+                } else {
+                    if (Integer.parseInt(item.get("iconcount").toString()) == Integer.parseInt(outMap.get("iconcount").toString())) {
+                        if (Integer.parseInt(item.get("id").toString()) < Integer.parseInt(outMap.get("id").toString())) {
+                            outMap = item;
+                        }
+                    } else if (Integer.parseInt(item.get("iconcount").toString()) > Integer.parseInt(outMap.get("iconcount").toString())) {
+                        outMap = item;
+                    }
+                }
+            }
+
+            if (outMap == null) {
+                return "";
+            } else {
+                return outMap.get("id").toString();
+            }
+
+        }
 
         return "";
-    } */
+    }
 
-    /*Map<String, Object> getWeatherConditionIcon(int inCondition) {
-        String icon = "";
+    int getWeatherCondition(int inCondition) {
         int outCondition;
-        Map<String, Object> outMap = new HashMap<>();
-    
+
         if (inCondition < 210) {
-          //icon = '⛈'; // Thunder cloud and rain
+          // Thunder cloud and rain
           outCondition = 209;
         } else if (inCondition < 300) {
-          //icon = '🌩'; // Cloud with lightning
+          // Cloud with lightning
           outCondition = 299;
         } else if (inCondition < 500) {
-          //icon = '🌦'; // White sun behind cloud with rain
+          // White sun behind cloud with rain
           outCondition = 499;
         } else if (inCondition < 600) {
-          //icon = '🌧'; // Cloud with rain
+          // Cloud with rain
           outCondition = 599;
         } else if (inCondition < 700) {
-          //icon = '🌨'; // Cloud with snow
+          // Cloud with snow
           outCondition = 699;
         } else if (inCondition < 800) {
-          //icon = '☁'; // Cloud   '🌫'; // Fog
+          // Cloud   '🌫'; // Fog
           outCondition = 804;   // 799;
         } else if (inCondition == 800) {
-          //icon = '☀'; // Black sun with rays
+          // Black sun with rays
           outCondition = 800;
         } else if (inCondition == 801) {
-          //icon = '🌤'; // White sun with small cloud
+          // White sun with small cloud
           outCondition = 801;
         } else if (inCondition <= 803) {
-          //icon = '🌥'; // White sun behind cloud
+          // White sun behind cloud
           outCondition = 803;
         } else if (inCondition == 804) {
-          //icon = '☁'; // Cloud
+          // Cloud
           outCondition = 804;
         } else {
-          //icon = '🤷‍';
+          // Unknown
           outCondition = inCondition;
         }
     
-        outMap.put("icon", icon);
-        outMap.put("outCondition", outCondition);
-    
-        return outMap;
-    } */
+        return outCondition;
+    }
     
     private String callCurrentWeatherApi(WeatherMeDto var1) {
 
