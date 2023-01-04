@@ -10,7 +10,6 @@ import java.util.Optional;
 
 public interface WeatherHistoryRepository extends JpaRepository<WeatherHistory, WeatherHistoryId> {
 
-
     @Query("SELECT COUNT(wh) FROM WeatherHistory wh WHERE wh.weatherHistoryId.historyCreateTime >= ?1 AND wh.apiCalledFlag = true")
     Long calculateCallCountSinceGivenHistoryCreateTime(LocalDateTime historyCreateTime);
 
